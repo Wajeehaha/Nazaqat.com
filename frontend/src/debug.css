@@ -1,0 +1,25 @@
+/* 
+Debug CSS for troubleshooting image display issues 
+Add this temporarily to help debug image loading 
+*/
+
+.product-image {
+  border: 2px solid red !important; /* Make images visible with border */
+  min-height: 200px !important; /* Ensure minimum height */
+  background-color: #f0f0f0 !important; /* Light background to see if container is there */
+}
+
+.product-image::before {
+  content: "Loading..." !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1 !important;
+}
+
+/* Highlight product cards */
+.product-card {
+  border: 2px solid blue !important;
+  margin: 5px !important;
+}
