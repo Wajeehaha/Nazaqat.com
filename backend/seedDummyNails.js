@@ -23,72 +23,70 @@ const connectDB = async () => {
 const dummyNails = [
     // Collection 1 - Product 1
     {
-        name: "Glamour Rose Gold Gel",
-        image: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop",
+        name: "Sahil",
+        image: "/uploads/Narmeen-sahil-1.jpg",
         images: [
-            "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1610992015732-2449b76344bc?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1515688594390-b649af70d282?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=400&fit=crop"
+            "/uploads/Narmeen-sahil-1.jpg",
+            "/uploads/Narmeen-sahil-2.jpg",
+            "/uploads/Narmeen-sahil-3.jpg",
+            "/uploads/Narmeen-sahil-4.jpg"
         ],
-        price: 55.00,
-        rating: 4.8,
-        description: "Luxurious rose gold gel nail polish with metallic finish. Perfect for special occasions and everyday glamour. Long-lasting formula with chip-resistant technology.",
+        price: 1300.00,
+        rating: 4.5,
+        description: "Minimal yet timeless, Saahil nails capture the calm of the shore with their soft nude tones. Perfectly short and versatile, they’re designed for everyday elegance and a natural, graceful finish",
         stock: 25,
-        collection: 'COLLECTION1',
-        category: 'gel-nails'
+        collection: 'Narmeen'
     },
     // Collection 1 - Product 2
     {
-        name: "Midnight Blue Elegance",
-        image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop",
+        name: "Noor",
+        image: "/uploads/Narmeen-noor-1.jpg",
         images: [
-            "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1542452618-4bb999a92b70?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1596652426039-d04b408c0ca8?w=400&h=400&fit=crop"
+            "/uploads/Narmeen-noor-1.jpg",
+            "/uploads/Narmeen-noor-2.jpg",
+            "/uploads/Narmeen-noor-3.jpg",
+            "/uploads/Narmeen-noor-4.jpg"
         ],
-        price: 48.00,
+        price: 1300.00,
         rating: 4.7,
-        description: "Deep midnight blue nail art with stunning shimmer effects. Professional grade formula that provides salon-quality results at home.",
-        stock: 30,
-        collection: 'COLLECTION1',
-        category: 'nail-art'
+        description: "A dreamy blend of elegance and radiance, Noor nails shine with soft nude pink tones and a delicate touch of glitter. Long, graceful, and luminous—just like their name, they light up every look with effortless beauty.",
+        stock: 25,
+        collection: 'Narmeen'
     },
+
     // Collection 2 - Product 1
     {
-        name: "Crystal Clear Acrylic Set",
-        image: "https://images.unsplash.com/photo-1599948128020-9a44fe305326?w=400&h=400&fit=crop",
+        name: "Naaz",
+        image: "/uploads/Dilnasheen-naaz-1.jpg",
         images: [
-            "https://images.unsplash.com/photo-1599948128020-9a44fe305326?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1509130872995-86c1187635f5?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1605462863863-8a6e857cb29b?w=400&h=400&fit=crop"
+           
+            "/uploads/Dilnasheen-naaz-2.jpg",
+            "/uploads/Dilnasheen-naaz-3.jpg"  ,
+            "/uploads/Dilnasheen-naaz-4.jpg",
+            "/uploads/Dilnasheen-naaz-5.jpg"
         ],
-        price: 75.00,
-        rating: 4.9,
-        description: "Premium crystal clear acrylic nail set with professional application tools. Perfect for creating stunning French manicures and nail extensions.",
-        stock: 20,
-        collection: 'COLLECTION2',
-        category: 'acrylic-nails'
+        price: 1300.00,
+        rating: 4.6,
+        description: "A bold twist on classic sophistication, Naaz features long nude nails with sharp black French tips. Chic, confident, and graceful—these nails embody poise with a touch of modern edge.",
+        stock: 25,
+        collection: 'Dilnasheen'
     },
     // Collection 2 - Product 2
-    {
-        name: "Lavender Dreams Nail Care Kit",
-        image: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=400&h=400&fit=crop",
+   {
+        name: "Suroor",
+        image: "/uploads/Dilnasheen-suroor-1.jpg",
         images: [
-            "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1594735797693-d0501ba2fe65?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1607779097040-26e80aa78e66?w=400&h=400&fit=crop",
-            "https://images.unsplash.com/photo-1576426863848-c21f53c60b19?w=400&h=400&fit=crop"
+           
+            "/uploads/Dilnasheen-suroor-2.jpg",
+            "/uploads/Dilnasheen-suroor-3.jpg",
+       
         ],
-        price: 42.00,
-        rating: 4.6,
-        description: "Complete nail care kit with lavender-infused treatments. Includes cuticle oil, nail strengthener, and nourishing hand cream for healthy, beautiful nails.",
-        stock: 35,
-        collection: 'COLLECTION2',
-        category: 'nail-care'
-    }
+        price: 1300.00,
+        rating: 4.8,
+        description: "Suroor is pure indulgence—a deep maroon base kissed with golden glitter. Luxurious, festive, and mesmerizing, these long nails are made for moments that deserve to be unforgettable.",
+        stock: 25,
+        collection: 'Dilnasheen'
+    },
 ];
 
 // Clear existing data and insert new dummy data

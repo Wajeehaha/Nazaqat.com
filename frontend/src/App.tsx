@@ -14,6 +14,10 @@ import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/AuthPage";
 import NailsPage from "./pages/NailsPage";
 import CollectionsPage from "./pages/CollectionsPage";
+import PolicyPage from "./pages/PolicyPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import PaymentCancelPage from "./pages/PaymentCancelPage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -29,8 +33,12 @@ const App = () => (
             <Route path="/nails/category/:category" element={<NailsPage />} />
             <Route path="/collections/:collection" element={<CollectionsPage />} />
             <Route path="/about" element={<AboutUs />} />
+            <Route path="/policy" element={<PolicyPage />} />
             <Route path="/product/:category/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
+            <Route path="/payment/cancel" element={<PaymentCancelPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="*" element={<NotFound />} />
             <Route path="/auth" element={<AuthPage />} />

@@ -42,9 +42,10 @@ const Header: React.FC = () => {
       <Link to="/nails/category/acrylic-nails" className="header-link">Acrylic Nails</Link>
       <Link to="/nails/category/nail-art" className="header-link">Nail Art</Link>
       <Link to="/nails/category/nail-care" className="header-link">Nail Care</Link> */}
-      <Link to="/collections/collection1" className="header-link">Collection 1</Link>
-      <Link to="/collections/collection2" className="header-link">Collection 2</Link>
+      <Link to="/collections/collection1" className="header-link">Dilnasheen</Link>
+      <Link to="/collections/collection2" className="header-link">Narmeen</Link>
       <Link to="/about" className="header-link">About Us</Link>
+      <Link to="/policy" className="header-link">Policies</Link>
     </>
   );
 

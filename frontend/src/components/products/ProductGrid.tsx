@@ -13,6 +13,7 @@ interface Product {
   _id: string; // Use _id instead of id
   name: string;
   image: string;
+  images?: string[]; // Optional array of images
   price: string | number;
   rating?: number;
   description?: string; // Optional description
@@ -41,9 +42,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, category, onProduct
                 <CarouselItem key={product._id} className="pl-2 md:pl-4 basis-1/2">
                   <div className="h-full">
                     <ProductCard
+                      key={product._id}
                       id={product._id} // Use _id here
                       name={product.name}
-                      image={product.image}
+                      image={product.image || (product.images && product.images[0]) || ""}
                       price={product.price}
                       rating={product.rating}
                       category={category}

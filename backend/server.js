@@ -19,6 +19,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies (for PayFast)
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -108,7 +109,21 @@ app.get('/api/nails/category/:category', async (req, res) => {
 app.get('/api/nails/collection/:collection', async (req, res) => {
     try {
         const { collection } = req.params;
-        const nails = await Nail.find({ collection });
+        
+        // Map frontend collection names to actual database collection names
+        let actualCollection = collection;
+        if (collection.toLowerCase() === 'collection1') {
+            // Get the first available collection from database
+            const collections = await Nail.distinct('collection');
+            actualCollection = collections[0] || collection;
+        } else if (collection.toLowerCase() === 'collection2') {
+            // Get the second available collection from database
+            const collections = await Nail.distinct('collection');
+            actualCollection = collections[1] || collections[0] || collection;
+        }
+        
+        console.log(`Mapping ${collection} to ${actualCollection}`);
+        const nails = await Nail.find({ collection: actualCollection });
         res.json(nails);
     } catch (error) {
         console.error('Error fetching nails by collection:', error);
@@ -171,13 +186,34 @@ app.get('/api/logo', async (req, res) => {
 // GET API: Retrieve trending nails by collection
 app.get('/api/trendings', async (req, res) => {
     try {
-        // Fetch nails with a rating of 4.5 or above, grouped by collection
-        const collection1 = await Nail.find({ collection: 'COLLECTION1', rating: { $gte: 4.5 } });
-        const collection2 = await Nail.find({ collection: 'COLLECTION2', rating: { $gte: 4.5 } });
+        // Fetch all distinct collections first
+        const collections = await Nail.distinct('collection');
+        console.log('Found collections:', collections);
+        
+        // Fetch trending nails (rating 4.5 or above) for all collections
+        const trendingNails = await Nail.find({ rating: { $gte: 4.5 } });
+        console.log('Found trending nails:', trendingNails.length);
+        
+        // Group by collection and map to expected format
         const trendingProducts = {
-            COLLECTION1: collection1,
-            COLLECTION2: collection2,
+            COLLECTION1: [],
+            COLLECTION2: []
         };
+        
+        // If we have collections, map them to COLLECTION1 and COLLECTION2
+        if (collections.length > 0) {
+            const firstCollection = collections[0];
+            const secondCollection = collections[1] || collections[0]; // fallback to first if only one exists
+            
+            trendingProducts.COLLECTION1 = trendingNails.filter(nail => nail.collection === firstCollection);
+            trendingProducts.COLLECTION2 = trendingNails.filter(nail => nail.collection === secondCollection);
+        }
+        
+        console.log('Trending products:', {
+            COLLECTION1: trendingProducts.COLLECTION1.length,
+            COLLECTION2: trendingProducts.COLLECTION2.length
+        });
+        
         res.json(trendingProducts);
     } catch (error) {
         console.error('Error fetching trending nails:', error);
@@ -230,6 +266,14 @@ app.post('/api/orders/:userId', async (req, res) => {
         // Get user email
         const user = await User.findById(userId);
         if (user && user.email) {
+            console.log('Sending order confirmation email...');
+            console.log('Cart items for email:', cart.items.map(item => ({
+                name: item.name,
+                image: item.image,
+                price: item.price,
+                quantity: item.quantity
+            })));
+            
             const { generateOrderConfirmationEmail } = require('./utils/emailTemplates');
             
             const subject = '🎉 Order Confirmation - Nazakat Nails';
@@ -321,6 +365,8 @@ app.post('/api/submit-order', async (req, res) => {
 
 const searchRoutes = require('./routes/searchRoutes'); // Import the search routes
 const reviewRoutes = require('./routes/reviewRoutes'); // Import the review routes
+const paymentRoutes = require('./routes/paymentRoutes'); // Import the payment routes
+const couponRoutes = require('./routes/couponRoutes'); // Import the coupon routes
 app.use('/api', searchRoutes);//search
 //Cart api
 app.use('/api/cart', cartAPI);
@@ -328,6 +374,10 @@ app.use('/api/cart', cartAPI);
 app.use('/api/auth', authRoutes);
 // Review routes
 app.use('/api/reviews', reviewRoutes);
+// Payment routes
+app.use('/api/payment', paymentRoutes);
+// Coupon routes
+app.use('/api/coupons', couponRoutes);
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => {

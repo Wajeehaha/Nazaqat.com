@@ -4,7 +4,7 @@ import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import Rating from "@/components/ui/rating";
 import { ShoppingCart, ArrowLeft, Heart, Share2, Minus, Plus, Check, ChevronLeft, ChevronRight } from "lucide-react";
-import { fetchTrendingProducts, addToCart, fetchNailById } from "@/assets/data";
+import { fetchTrendingProducts, fetchNailById } from "@/assets/data";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -12,12 +12,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReviewSummary from "@/components/reviews/ReviewSummary";
 import ReviewList from "@/components/reviews/ReviewList";
 import ReviewForm from "@/components/reviews/ReviewForm";
+import { useCart } from "@/contexts/CartContext";
 
 const ProductDetailPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { category, id } = useParams();
-  const [product, setProduct] = useState(location.state?.product || null);
+  const { addToCart } = useCart(); // Use cart context
+  const [product, setProduct] = useState(() => {
+    const initial = location.state?.product || null;
+    if (initial && !initial.images) {
+      return { ...initial, images: initial.image ? [initial.image] : [] };
+    }
+    return initial;
+  });
+  // Ensure product always has an images array after fetch
+  useEffect(() => {
+    if (product && !product.images) {
+      setProduct({ ...product, images: product.image ? [product.image] : [] });
+    }
+  }, [product]);
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -90,26 +104,29 @@ const ProductDetailPage = () => {
   };
 
   const handleAddToCart = async () => {
-    const userId = localStorage.getItem("userId");
-
     try {
       setIsLoading(true);
-      console.log("quantity", quantity);  
-      const updatedCart = await addToCart(userId, {
-        productId: product._id,
+      console.log("Adding to cart with quantity:", quantity);
+      
+      // Create product object for cart context
+      const productForCart = {
+        id: product._id,
         name: product.name,
         image: product.image,
-        price: product.price,
+        price: product.price.toString(),
         rating: product.rating,
         description: product.description,
-        quantity: quantity,
-      });
+      };
 
-      console.log("Product added to cart:", updatedCart);
-      toast.success("Product added to cart successfully!");
+      // Use cart context to add to cart with quantity
+      await addToCart(productForCart, quantity);
+
+      console.log("Product added to cart successfully");
+      // Reset quantity to 1 after adding to cart
+      setQuantity(1);
     } catch (error) {
       console.error("Error adding product to cart:", error);
-      toast.error("Failed to add product to cart. Please try again.");
+      // Error toast will be shown by cart context
     } finally {
       setIsLoading(false);
     }

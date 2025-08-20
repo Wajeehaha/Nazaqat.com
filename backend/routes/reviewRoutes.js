@@ -69,6 +69,16 @@ router.get('/product/:productId', async (req, res) => {
       .skip((page - 1) * limit)
       .exec();
 
+    console.log(`Fetched ${reviews.length} reviews for product ${productId}`);
+    if (reviews.length > 0) {
+      console.log('Sample review data:', {
+        reviewId: reviews[0]._id,
+        userName: reviews[0].userId?.name,
+        rating: reviews[0].rating,
+        hasImages: reviews[0].images?.length > 0
+      });
+    }
+
     const totalReviews = await Review.countDocuments({ productId: new mongoose.Types.ObjectId(productId), flagged: false });
     
     // Calculate basic stats without complex aggregation
@@ -128,6 +138,8 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
     }
 
     console.log('Creating review for product:', productId, 'by user:', userId);
+    console.log('Review data:', { productId, userId, orderId, rating, title, comment });
+    console.log('Uploaded images:', req.files ? req.files.map(f => f.filename) : 'None');
 
     // Check if user already reviewed this product
     const existingReview = await Review.findOne({ 
@@ -157,6 +169,13 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
     });
 
     await review.save();
+    console.log('Review saved successfully:', { 
+      reviewId: review._id, 
+      productId: review.productId, 
+      userId: review.userId,
+      rating: review.rating,
+      imagesCount: review.images.length 
+    });
 
     // Update product's average rating
     await updateProductRating(productId);

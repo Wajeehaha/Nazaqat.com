@@ -28,6 +28,12 @@ router.post('/:userId', async (req, res) => {
         const { userId } = req.params;
         const { productId, name, image, price, rating, description, quantity } = req.body;
 
+        // Validate userId
+        if (!userId || userId === 'null' || userId === 'undefined') {
+            console.log('Invalid userId provided:', userId);
+            return res.status(401).json({ message: 'User authentication required' });
+        }
+
         console.log('Add to cart request:', { userId, productId, name, price, quantity }); // Debug log
 
         // Fetch the product to check stock
@@ -106,7 +112,7 @@ router.delete('/:userId/:productId', async (req, res) => {
 router.put('/:userId/:productId', async (req, res) => {
     try {
         const { userId, productId } = req.params;
-        const { mode } = req.body;
+        const { mode, quantity } = req.body;
 
         const cart = await Cart.findOne({ userId });
         if (!cart) {
@@ -119,15 +125,24 @@ router.put('/:userId/:productId', async (req, res) => {
         }
 
         // Fetch the product to check stock
-        const product = await Perfume.findById(productId) || 
-                        await Deodorant.findById(productId) || 
-                        await Lotion.findById(productId);
+        const product = await Nail.findById(productId);
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        if (mode === 'increment') {
+        // Handle different update modes
+        if (mode === 'set' && quantity !== undefined) {
+            // Direct quantity setting
+            const newQuantity = parseInt(quantity);
+            if (newQuantity <= 0) {
+                return res.status(400).json({ message: 'Quantity must be greater than 0' });
+            }
+            if (newQuantity > product.stock) {
+                return res.status(400).json({ message: 'Not enough stock available' });
+            }
+            item.quantity = newQuantity;
+        } else if (mode === 'increment') {
             if (item.quantity + 1 > product.stock) {
                 return res.status(400).json({ message: 'Not enough stock available' });
             }
@@ -139,45 +154,52 @@ router.put('/:userId/:productId', async (req, res) => {
                 return res.status(400).json({ message: 'Quantity cannot be less than 1' });
             }
         } else {
-            return res.status(400).json({ message: 'Invalid mode. Use "increment" or "decrement".' });
+            return res.status(400).json({ message: 'Invalid mode. Use "increment", "decrement", or "set" with quantity.' });
         }
 
         item.totalPrice = item.quantity * item.price;
         await cart.save();
+        console.log(`Cart updated: ${item.name} quantity set to ${item.quantity}`);
         res.json(cart);
     } catch (error) {
         console.error('Error updating cart quantity:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
-// router.delete('/clear/:userId', async (req, res) => {
-//   let { userId } = req.params;  
-//   console.log("Received userId:", userId);
 
-//   try {
-//     // Trim any extra spaces or characters from the userId
-//     userId = userId.trim();
-//     console.log("Sanitized userId:", userId);
+// DELETE API: Clear all items from cart
+router.delete('/clear/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        console.log("Clearing cart for userId:", userId);
 
-//     // Use a regex to find the user's cart, ignoring trailing characters
-//     let cart = await Cart.findOne({ userId: { $regex: `^${userId}`, $options: 'i' } });
-//     console.log("Cart found:", cart);
+        // Find the cart for the given user ID
+        let cart = await Cart.findOne({ userId });
 
-//     // If the cart does not exist, return a success response with an empty cart
-//     if (!cart) {
-//       return res.status(404).json({ message: 'Cart not found' });
-//     }
+        // If the cart does not exist, return empty cart response
+        if (!cart) {
+            console.log("Cart not found for user:", userId);
+            return res.json({ 
+                message: 'Cart was already empty', 
+                cart: { userId, items: [] } 
+            });
+        }
 
-//     // Clear all items in the cart
-//     cart.items = [];
+        // Clear all items in the cart
+        cart.items = [];
 
-//     // Save the updated cart
-//     await cart.save();
+        // Save the updated cart
+        await cart.save();
+        console.log("Cart cleared successfully for user:", userId);
 
-//     res.status(200).json({ message: 'Cart cleared successfully', cart });
-//   } catch (error) {
-//     console.error('Error clearing cart:', error);
-//     res.status(500).json({ message: 'Internal server error' });
-//   }
-// });
+        res.json({ 
+            message: 'Cart cleared successfully', 
+            cart 
+        });
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 module.exports = router;

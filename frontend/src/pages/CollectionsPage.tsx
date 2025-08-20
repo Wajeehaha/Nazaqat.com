@@ -37,9 +37,9 @@ const CollectionsPage: React.FC = () => {
   const getCollectionTitle = () => {
     switch (collection?.toUpperCase()) {
       case 'COLLECTION1':
-        return 'Collection 1 - Premium Series';
+        return 'Dilnasheen - Premium Series';
       case 'COLLECTION2':
-        return 'Collection 2 - Artistic Series';
+        return 'Narmeen - Artistic Series';
       default:
         return 'Nail Collection';
     }

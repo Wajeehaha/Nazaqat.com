@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-xl font-playfair font-semibold mb-4">Nazakat</h3>
             <p className="text-gray-400 mb-4">
-              Premium fragrances, deodorants, and lotions crafted to enhance your personal style.
+              Premium nail products and collections crafted to enhance your beauty and personal style with elegance and sophistication.
             </p>
           </div>
           
@@ -19,6 +19,11 @@ const Footer: React.FC = () => {
             <h4 className="text-lg font-playfair font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li><Link to="/" className="text-gray-400 hover:text-white transition-colors">Home</Link></li>
+              <li><Link to="/nails" className="text-gray-400 hover:text-white transition-colors">All Nails</Link></li>
+              <li><Link to="/collections/collection1" className="text-gray-400 hover:text-white transition-colors">Dilnasheen</Link></li>
+              <li><Link to="/collections/collection2" className="text-gray-400 hover:text-white transition-colors">Narmeen</Link></li>
+              <li><Link to="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link to="/policy" className="text-gray-400 hover:text-white transition-colors">Policies</Link></li>
               {/* <li><Link to="/perfumes" className="text-gray-400 hover:text-white transition-colors">Perfumes</Link></li>
               <li><Link to="/deodorants" className="text-gray-400 hover:text-white transition-colors">Deodorants</Link></li>
               <li><Link to="/lotions" className="text-gray-400 hover:text-white transition-colors">Lotions</Link></li> */}

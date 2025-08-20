@@ -13,9 +13,41 @@ const orderSchema = new mongoose.Schema({
             totalPrice: { type: Number, required: true },
         },
     ],
-    totalAmount: { type: Number, required: true }, // Total amount for the order
-    status: { type: String, default: 'Pending' }, // Order status (e.g., Pending, Completed)
+    subtotal: { type: Number, required: true }, // Subtotal before discount
+    discount: { type: Number, default: 0 }, // Discount amount
+    totalAmount: { type: Number, required: true }, // Total amount after discount
+    status: { type: String, default: 'Pending' }, // Order status (e.g., Pending, Paid, Completed, Cancelled)
+    paymentMethod: { 
+        type: String, 
+        enum: ['online', 'cod'], 
+        required: true,
+        default: 'online'
+    },
+    customerInfo: {
+        firstName: { type: String },
+        lastName: { type: String },
+        email: { type: String },
+        phone: { type: String },
+        address: { type: String },
+        city: { type: String },
+        postalCode: { type: String }
+    },
+    couponUsed: {
+        code: { type: String },
+        discountType: { type: String },
+        discountValue: { type: Number },
+        discountAmount: { type: Number }
+    },
+    paymentDetails: {
+        pfPaymentId: { type: String }, // PayFast payment ID
+        paymentMethod: { type: String },
+        paidAmount: { type: Number },
+        paidAt: { type: Date },
+        failureReason: { type: String },
+        failedAt: { type: Date }
+    },
     createdAt: { type: Date, default: Date.now }, // Timestamp for when the order was placed
+    updatedAt: { type: Date, default: Date.now }
 });
 
 // Create the model

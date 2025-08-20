@@ -11,20 +11,43 @@ export const fetchTrendingProducts = async () => {
 
     // Handle image URLs for nails collections
     if (data) {
-      data.COLLECTION1 = data.COLLECTION1.map((item) => {
-        const processedItem = {
+      data.COLLECTION1 = data.COLLECTION1?.map((item) => {
+        const processedImage = item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`;
+        
+        let processedImages = [];
+        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+          processedImages = item.images.map(img => 
+            img && img.startsWith('http') ? img : `${IMAGE_BASE_URL}${img}`
+          );
+        } else if (processedImage) {
+          processedImages = [processedImage];
+        }
+        
+        return {
           ...item,
-          image: item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`,
+          image: processedImage,
+          images: processedImages,
         };
-        return processedItem;
-      });
-      data.COLLECTION2 = data.COLLECTION2.map((item) => {
-        const processedItem = {
+      }) || [];
+      
+      data.COLLECTION2 = data.COLLECTION2?.map((item) => {
+        const processedImage = item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`;
+        
+        let processedImages = [];
+        if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+          processedImages = item.images.map(img => 
+            img && img.startsWith('http') ? img : `${IMAGE_BASE_URL}${img}`
+          );
+        } else if (processedImage) {
+          processedImages = [processedImage];
+        }
+        
+        return {
           ...item,
-          image: item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`,
+          image: processedImage,
+          images: processedImages,
         };
-        return processedItem;
-      });
+      }) || [];
     }
 
     return data; // Returns { COLLECTION1, COLLECTION2 }
@@ -40,9 +63,21 @@ export const fetchNails = async () => {
     const response = await axios.get(`${API_BASE_URL}/nails`);
     console.log("Raw nails data:", response.data); // Debug log
     const processedData = response.data.map((item) => {
+      const processedImage = item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`;
+      
+      let processedImages = [];
+      if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+        processedImages = item.images.map(img => 
+          img && img.startsWith('http') ? img : `${IMAGE_BASE_URL}${img}`
+        );
+      } else if (processedImage) {
+        processedImages = [processedImage];
+      }
+      
       const processedItem = {
         ...item,
-        image: item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`,
+        image: processedImage,
+        images: processedImages,
       };
       console.log("Processed nail item:", processedItem); // Debug log
       return processedItem;
@@ -58,10 +93,24 @@ export const fetchNails = async () => {
 export const fetchNailsByCategory = async (category) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/nails/category/${category}`);
-    return response.data.map((item) => ({
-      ...item,
-      image: item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`,
-    })); // Returns an array of nails by category with proper image URLs
+    return response.data.map((item) => {
+      const processedImage = item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`;
+      
+      let processedImages = [];
+      if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+        processedImages = item.images.map(img => 
+          img && img.startsWith('http') ? img : `${IMAGE_BASE_URL}${img}`
+        );
+      } else if (processedImage) {
+        processedImages = [processedImage];
+      }
+      
+      return {
+        ...item,
+        image: processedImage,
+        images: processedImages,
+      };
+    }); // Returns an array of nails by category with proper image URLs
   } catch (error) {
     console.error("Error fetching nails by category:", error);
     return [];
@@ -72,10 +121,24 @@ export const fetchNailsByCategory = async (category) => {
 export const fetchNailsByCollection = async (collection) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/nails/collection/${collection}`);
-    return response.data.map((item) => ({
-      ...item,
-      image: item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`,
-    })); // Returns an array of nails by collection with proper image URLs
+    return response.data.map((item) => {
+      const processedImage = item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`;
+      
+      let processedImages = [];
+      if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+        processedImages = item.images.map(img => 
+          img && img.startsWith('http') ? img : `${IMAGE_BASE_URL}${img}`
+        );
+      } else if (processedImage) {
+        processedImages = [processedImage];
+      }
+      
+      return {
+        ...item,
+        image: processedImage,
+        images: processedImages,
+      };
+    }); // Returns an array of nails by collection with proper image URLs
   } catch (error) {
     console.error("Error fetching nails by collection:", error);
     return [];
@@ -87,10 +150,26 @@ export const fetchNailById = async (id) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/nails/${id}`);
     const item = response.data;
+    
+    // Process main image
+    const processedImage = item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`;
+    
+    // Process images array
+    let processedImages = [];
+    if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+      processedImages = item.images.map(img => 
+        img && img.startsWith('http') ? img : `${IMAGE_BASE_URL}${img}`
+      );
+    } else if (processedImage) {
+      // If no images array but has main image, create array with main image
+      processedImages = [processedImage];
+    }
+    
     return {
       ...item,
-      image: item.image && item.image.startsWith('http') ? item.image : `${IMAGE_BASE_URL}${item.image}`,
-    }; // Returns a single nail product with proper image URL
+      image: processedImage,
+      images: processedImages,
+    }; // Returns a single nail product with proper image URLs
   } catch (error) {
     console.error("Error fetching nail by ID:", error);
     return null;
@@ -108,12 +187,23 @@ export const fetchCart = async (userId) => {
 };
 // Add an item to the cart
 export const addToCart = async (userId, product) => {
-  console.log("Adding to cart:", userId, product);
+  console.log("Adding to cart - userId:", userId, "product:", product.name);
+  
+  // Validate userId
+  if (!userId || userId === 'null' || userId === 'undefined') {
+    console.error('Invalid userId for addToCart:', userId);
+    throw new Error('User authentication required. Please log in.');
+  }
+  
   try {
     const response = await axios.post(`${API_BASE_URL}/cart/${userId}`, product);
+    console.log('addToCart API response:', response.data);
     return response.data; // Returns the updated cart
   } catch (error) {
     console.error("Error adding to cart:", error);
+    if (error.response?.status === 401) {
+      throw new Error('Please log in to add items to cart');
+    }
     throw error;
   }
 };
@@ -128,20 +218,38 @@ export const removeFromCart = async (userId, productId) => {
     throw error;
   }
 };
-// export const clearCartAPI = async (userId) => {
-//   try {
-//     const response = await axios.delete(`${API_BASE_URL}/cart/clear/${userId}`);
-//     return response.data; // Return the updated cart
-//   } catch (error) {
-//     console.error('Error clearing cart:', error);
-//     throw error; // Throw the error to handle it in the calling function
-//   }
-// };
+
+// Clear all items from cart
+export const clearCartAPI = async (userId) => {
+  console.log("Clearing cart for userId:", userId);
+  
+  // Validate userId
+  if (!userId || userId === 'null' || userId === 'undefined') {
+    console.error('Invalid userId for clearCart:', userId);
+    throw new Error('User authentication required. Please log in.');
+  }
+  
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/cart/clear/${userId}`);
+    console.log('clearCart API response:', response.data);
+    return response.data; // Return the updated cart
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    if (error.response?.status === 401) {
+      throw new Error('Please log in to clear cart');
+    }
+    throw error; // Throw the error to handle it in the calling function
+  }
+};
 
 // Update the quantity of an item in the cart
-export const updateCartQuantity = async (userId, productId, mode) => {
+export const updateCartQuantity = async (userId, productId, mode, quantity = null) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/cart/${userId}/${productId}`, { mode });
+    const payload = { mode };
+    if (mode === 'set' && quantity !== null) {
+      payload.quantity = quantity;
+    }
+    const response = await axios.put(`${API_BASE_URL}/cart/${userId}/${productId}`, payload);
     return response.data; // Returns the updated cart
   } catch (error) {
     console.error("Error updating cart quantity:", error);

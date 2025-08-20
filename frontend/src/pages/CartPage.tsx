@@ -23,7 +23,7 @@ const handleCheckout = () => {
     navigate("/auth"); // Redirect to login/signup page
     return;
   }
-  setIsCheckout(true); // Show the checkout form
+  navigate("/checkout"); // Navigate to the new checkout page
 };
 
   const handleCheckoutSuccess = async () => {
