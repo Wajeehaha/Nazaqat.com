@@ -3,20 +3,13 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Review = require('../models/Review');
 const Nail = require('../models/Nail');
-const Order = require('../models/order');
+const Order = require('../models/Order');
 const { protect } = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
-// Configure multer for review image uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-review-' + file.originalname);
-  }
-});
+// Configure multer for review image uploads - Memory storage for serverless
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage,
@@ -153,8 +146,10 @@ router.post('/', protect, upload.array('images', 5), async (req, res) => {
       });
     }
 
-    // Process uploaded images
-    const imageUrls = req.files ? req.files.map(file => file.filename) : [];
+    // Process uploaded images - for serverless, generate unique filenames
+    const imageUrls = req.files ? req.files.map(file => 
+      `${Date.now()}-review-${file.originalname}`
+    ) : [];
 
     const review = new Review({
       productId: new mongoose.Types.ObjectId(productId),

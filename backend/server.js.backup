@@ -1,18 +1,29 @@
 const express = require('express');
 const cors = require('cors');
-const multer = require('multer'); // Import multer for file uploads
+const multer = require('multer');
 const path = require('path');
-const connectDB = require('./db'); // Import the database connection function
-const Nail = require('./models/Nail'); // Import the Nail model
+
+// Initialize Express app first
+const app = express();
+
+// Graceful error handling for serverless
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+});
+
+// Import after app initialization
+const connectDB = require('./db');
+const Nail = require('./models/Nail');
 const Logo = require('./models/Logo');
 const cartAPI = require('./routes/cartAPI');
-const Order = require('./models/Order'); // Import the Order model (fixed case sensitivity)
-const Cart = require('./models/Cart'); // Import the Cart model
+const Order = require('./models/Order');
+const Cart = require('./models/Cart');
 const authRoutes = require('./routes/authRoutes');
-const User = require('./models/User'); // Import the User model
-
-
-const app = express();
+const User = require('./models/User');
 
 // CORS configuration for production
 const corsOptions = {
@@ -56,12 +67,46 @@ const upload = multer({
 // In production, serve images from cloud storage instead
 // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Connect to MongoDB
-connectDB();
+// Initialize database connection
+let isConnected = false;
 
+const initializeDB = async () => {
+    if (isConnected) {
+        console.log('Using existing database connection');
+        return;
+    }
+    
+    try {
+        await connectDB();
+        isConnected = true;
+        console.log('Database connected successfully');
+    } catch (error) {
+        console.error('Database connection failed:', error);
+        throw error;
+    }
+};
+
+// Validate required environment variables
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error('Missing required environment variables:', missingEnvVars);
+    if (process.env.NODE_ENV === 'production') {
+        throw new Error(`Missing environment variables: ${missingEnvVars.join(', ')}`);
+    }
+}
+
+// Initialize DB for serverless
+initializeDB().catch(console.error);
 //test api
 app.get('/', (req, res) => {
-    res.send('API is running...'); // Simple message to indicate the server is running
+    res.json({ 
+        message: 'Nazakat Backend API is running',
+        status: 'OK',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+    });
 });
 
 // Health check endpoint
@@ -69,9 +114,12 @@ app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'OK', 
         message: 'Nazakat Backend API is running',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        database: isConnected ? 'Connected' : 'Disconnected',
+        environment: process.env.NODE_ENV || 'development'
     });
 });
+
 
 // POST API: Add a new nail product
 app.post('/api/nails', upload.single('image'), async (req, res) => {
@@ -412,6 +460,27 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/payment', paymentRoutes);
 // Coupon routes
 app.use('/api/coupons', couponRoutes);
+
+// Global error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Unhandled error:', err);
+    
+    // Don't leak error details in production
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    
+    res.status(500).json({
+        message: 'Internal server error',
+        ...(isDevelopment && { error: err.message, stack: err.stack })
+    });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+    res.status(404).json({
+        message: 'Route not found',
+        path: req.originalUrl
+    });
+});
 
 // Export the app for Vercel (serverless)
 module.exports = app;

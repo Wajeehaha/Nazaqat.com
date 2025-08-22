@@ -18,7 +18,12 @@ const connectDB = async () => {
         console.log('Connected to MongoDB'.blue);
     } catch (err) {
         console.error('Error connecting to MongoDB:'.red, err);
-        process.exit(1);
+        // Don't exit process in serverless environment
+        if (process.env.VERCEL !== '1' && process.env.NODE_ENV !== 'production') {
+            process.exit(1);
+        } else {
+            throw err; // Let Vercel handle the error
+        }
     }
 };
 
