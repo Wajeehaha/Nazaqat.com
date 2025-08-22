@@ -13,33 +13,60 @@ const User = require('./models/User'); // Import the User model
 
 
 const app = express();
+
+// CORS configuration for production
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        
+        // List of allowed origins
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            // Add your Firebase hosting URL here after deployment
+            process.env.FRONTEND_URL
+        ];
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
 };
+
 app.use(cors(corsOptions));
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies (for PayFast)
 
-// Set up multer for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Save files to the 'uploads' folder
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`); // Save with a unique name
-    },
+// Set up multer for file uploads (disabled for Vercel deployment)
+// TODO: Use cloud storage (Cloudinary/AWS S3) for production
+const storage = multer.memoryStorage(); // Use memory storage temporarily
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
-const upload = multer({ storage });
 
-// Serve static files from the 'uploads' folder
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static files from the 'uploads' folder (disabled for Vercel)
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB
 connectDB();
 //test api
 app.get('/', (req, res) => {
     res.send('API is running...'); // Simple message to indicate the server is running
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        message: 'Nazakat Backend API is running',
+        timestamp: new Date().toISOString()
+    });
 });
 
 
@@ -378,8 +405,14 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/payment', paymentRoutes);
 // Coupon routes
 app.use('/api/coupons', couponRoutes);
-// Start the server
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`.green); // Log in green
-});
+
+// Export the app for Vercel (serverless)
+module.exports = app;
+
+// Only start server if not in Vercel environment
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`.green);
+    });
+}

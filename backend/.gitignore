@@ -41,3 +41,4 @@ build/
 
 # OS-specific files
 Thumbs.db
+.vercel
