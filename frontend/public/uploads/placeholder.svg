@@ -1,0 +1,10 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="200" height="200" fill="url(#paint0_linear)" rx="16"/>
+<text x="100" y="120" font-family="Arial" font-size="48" fill="white" text-anchor="middle">💅</text>
+<defs>
+<linearGradient id="paint0_linear" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+<stop stop-color="#EC4899"/>
+<stop offset="1" stop-color="#BE185D"/>
+</linearGradient>
+</defs>
+</svg>
