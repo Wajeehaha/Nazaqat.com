@@ -67,24 +67,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <img 
           src={image} 
           alt={name} 
-          className="product-image w-full h-48 object-contain group-hover:scale-105 transition-transform duration-300"
+          className="product-image w-full h-36 sm:h-40 md:h-48 object-contain group-hover:scale-105 transition-transform duration-300"
         />
       </div>
-      <CardContent className="p-4 flex-grow">
-        <CardTitle className="font-medium text-lg mb-2">{name}</CardTitle>
-        <p className="text-sm text-gray-600 mb-2">{description}</p> {/* Display the description */}
-        <div className="flex justify-between items-center mb-2">
-          <p className="font-semibold text-black">Rs. {price}</p>
-          {rating && rating > 0 && <Rating value={rating} />}
+      <CardContent className="p-3 sm:p-4 flex-grow">
+        <CardTitle className="font-medium text-sm sm:text-base lg:text-lg mb-1 sm:mb-2 line-clamp-2">{name}</CardTitle>
+        <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2 line-clamp-2">{description}</p> {/* Display the description */}
+        <div className="flex justify-between items-center mb-1 sm:mb-2">
+          <p className="font-semibold text-black text-sm sm:text-base">Rs. {price}</p>
+          {rating && rating > 0 && <Rating value={rating} className="text-xs sm:text-sm" />}
         </div>
       </CardContent>
-      <CardFooter className="px-4 pb-4 pt-0">
+      <CardFooter className="px-3 sm:px-4 pb-3 sm:pb-4 pt-0">
         <Button 
           onClick={handleAddToCart}
-          className="w-full bg-black hover:bg-gray-800 transition-colors"
+          className="w-full bg-gradient-to-r from-subtle-400 to-sage-400 hover:from-subtle-500 hover:to-sage-500 text-white transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl cart-button h-10 sm:h-9 text-xs sm:text-sm font-semibold"
         >
-          <ShoppingCart className="mr-2 h-4 w-4" />
-          Add to Cart
+          <ShoppingCart className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline">Add to Cart</span>
+          <span className="xs:hidden">Add</span>
         </Button>
       </CardFooter>
     </Card>

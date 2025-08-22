@@ -34,7 +34,7 @@ const dummyNails = [
         price: 1300.00,
         rating: 4.5,
         description: "Minimal yet timeless, Saahil nails capture the calm of the shore with their soft nude tones. Perfectly short and versatile, they’re designed for everyday elegance and a natural, graceful finish",
-        stock: 25,
+        stock: 15,
         collection: 'Narmeen'
     },
     // Collection 1 - Product 2
@@ -50,7 +50,7 @@ const dummyNails = [
         price: 1300.00,
         rating: 4.7,
         description: "A dreamy blend of elegance and radiance, Noor nails shine with soft nude pink tones and a delicate touch of glitter. Long, graceful, and luminous—just like their name, they light up every look with effortless beauty.",
-        stock: 25,
+        stock: 15,
         collection: 'Narmeen'
     },
 
@@ -68,7 +68,7 @@ const dummyNails = [
         price: 1300.00,
         rating: 4.6,
         description: "A bold twist on classic sophistication, Naaz features long nude nails with sharp black French tips. Chic, confident, and graceful—these nails embody poise with a touch of modern edge.",
-        stock: 25,
+        stock: 15,
         collection: 'Dilnasheen'
     },
     // Collection 2 - Product 2
@@ -84,7 +84,7 @@ const dummyNails = [
         price: 1300.00,
         rating: 4.8,
         description: "Suroor is pure indulgence—a deep maroon base kissed with golden glitter. Luxurious, festive, and mesmerizing, these long nails are made for moments that deserve to be unforgettable.",
-        stock: 25,
+        stock: 15,
         collection: 'Dilnasheen'
     },
 ];

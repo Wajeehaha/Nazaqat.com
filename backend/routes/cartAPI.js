@@ -2,6 +2,50 @@ const express = require('express');
 const Cart = require('../models/Cart'); // Import the Cart model
 const router = express.Router();
 const Nail = require('../models/Nail'); // Import the Nail model
+
+// Test route - can be removed after testing
+router.get('/test', (req, res) => {
+    res.json({ message: 'Cart API is working!' });
+});
+
+// DELETE API: Clear all items from cart (MUST come before the general delete route)
+router.delete('/clear/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        console.log("=== CLEAR CART ENDPOINT HIT ===");
+        console.log("Clearing cart for userId:", userId);
+        console.log("Request params:", req.params);
+        console.log("Request URL:", req.url);
+
+        // Find the cart for the given user ID
+        let cart = await Cart.findOne({ userId });
+
+        // If the cart does not exist, return empty cart response
+        if (!cart) {
+            console.log("Cart not found for user:", userId);
+            return res.json({ 
+                message: 'Cart was already empty', 
+                cart: { userId, items: [] } 
+            });
+        }
+
+        // Clear all items in the cart
+        cart.items = [];
+
+        // Save the updated cart
+        await cart.save();
+        console.log("Cart cleared successfully for user:", userId);
+
+        res.json({ 
+            message: 'Cart cleared successfully', 
+            cart 
+        });
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 // GET API: Retrieve the cart for a user
 router.get('/:userId', async (req, res) => {
     try {
@@ -89,10 +133,51 @@ router.post('/:userId', async (req, res) => {
     }
 });
 
+// DELETE API: Clear all items from cart (MUST come before the general delete route)
+router.delete('/clear/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        console.log("=== CLEAR CART ENDPOINT HIT ===");
+        console.log("Clearing cart for userId:", userId);
+        console.log("Request params:", req.params);
+        console.log("Request URL:", req.url);
+
+        // Find the cart for the given user ID
+        let cart = await Cart.findOne({ userId });
+
+        // If the cart does not exist, return empty cart response
+        if (!cart) {
+            console.log("Cart not found for user:", userId);
+            return res.json({ 
+                message: 'Cart was already empty', 
+                cart: { userId, items: [] } 
+            });
+        }
+
+        // Clear all items in the cart
+        cart.items = [];
+
+        // Save the updated cart
+        await cart.save();
+        console.log("Cart cleared successfully for user:", userId);
+
+        res.json({ 
+            message: 'Cart cleared successfully', 
+            cart 
+        });
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 // DELETE API: Remove an item from the cart
 router.delete('/:userId/:productId', async (req, res) => {
     try {
         const { userId, productId } = req.params;
+        console.log("=== REMOVE ITEM ENDPOINT HIT ===");
+        console.log("userId:", userId, "productId:", productId);
+        console.log("Request URL:", req.url);
 
         const cart = await Cart.findOne({ userId });
         if (!cart) {
@@ -163,41 +248,6 @@ router.put('/:userId/:productId', async (req, res) => {
         res.json(cart);
     } catch (error) {
         console.error('Error updating cart quantity:', error);
-        res.status(500).json({ message: 'Internal server error' });
-    }
-});
-
-// DELETE API: Clear all items from cart
-router.delete('/clear/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-        console.log("Clearing cart for userId:", userId);
-
-        // Find the cart for the given user ID
-        let cart = await Cart.findOne({ userId });
-
-        // If the cart does not exist, return empty cart response
-        if (!cart) {
-            console.log("Cart not found for user:", userId);
-            return res.json({ 
-                message: 'Cart was already empty', 
-                cart: { userId, items: [] } 
-            });
-        }
-
-        // Clear all items in the cart
-        cart.items = [];
-
-        // Save the updated cart
-        await cart.save();
-        console.log("Cart cleared successfully for user:", userId);
-
-        res.json({ 
-            message: 'Cart cleared successfully', 
-            cart 
-        });
-    } catch (error) {
-        console.error('Error clearing cart:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

@@ -5,38 +5,16 @@ const generateOrderConfirmationEmail = (user, order, cartItems, totalAmount) => 
     day: 'numeric'
   });
 
-  // Base URL for images - you can make this configurable via environment variables
-  const baseURL = process.env.BASE_URL || 'http://localhost:3000';
-
   const itemsHtml = cartItems.map(item => {
-    // Handle image URL - convert relative paths to absolute URLs
-    let imageUrl = item.image;
-    if (imageUrl && !imageUrl.startsWith('http')) {
-      // If it's a relative path, convert to absolute URL
-      if (imageUrl.startsWith('/uploads/')) {
-        imageUrl = `${baseURL}${imageUrl}`;
-      } else if (imageUrl.startsWith('/')) {
-        imageUrl = `${baseURL}${imageUrl}`;
-      } else {
-        // If it doesn't start with /, assume it's just the filename
-        imageUrl = `${baseURL}/uploads/${imageUrl}`;
-      }
-    }
-    
-    // Fallback image if no image is provided
-    if (!imageUrl) {
-      imageUrl = `${baseURL}/uploads/placeholder.jpg`;
-    }
-
-    console.log(`Email image URL for ${item.name}: ${imageUrl} (original: ${item.image})`);
+    console.log(`📧 Email item: ${item.name} - Qty: ${item.quantity} - Price: Rs. ${item.price}`);
 
     return `
     <tr style="border-bottom: 1px solid #e5e7eb;">
       <td style="padding: 16px 8px; text-align: left;">
         <div style="display: flex; align-items: center;">
-          <img src="${imageUrl}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 12px; border: 1px solid #e5e7eb;" 
-               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-          <div style="display: none; width: 60px; height: 60px; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); border-radius: 8px; margin-right: 12px; border: 1px solid #e5e7eb; color: white; font-size: 24px; text-align: center; line-height: 60px;">💅</div>
+          <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); border-radius: 8px; margin-right: 12px; border: 1px solid #e5e7eb; color: white; font-size: 24px; text-align: center; line-height: 60px; font-weight: bold;">
+            💅
+          </div>
           <div>
             <h3 style="margin: 0; font-size: 16px; color: #111827; font-weight: 600;">${item.name}</h3>
             <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 14px;">${item.description || 'Premium nail product'}</p>
@@ -320,10 +298,10 @@ const generateOrderConfirmationEmail = (user, order, cartItems, totalAmount) => 
                 </p>
             </div>
 
-            <!-- Call to Action -->
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="#" class="button">Track Your Order</a>
-            </div>
+            // <!-- Call to Action -->
+            // <div style="text-align: center; margin: 30px 0;">
+            //     <a href="#" class="button">Track Your Order</a>
+            // </div>
 
             <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
                 If you have any questions about your order, please don't hesitate to contact our customer support team. 
@@ -335,7 +313,7 @@ const generateOrderConfirmationEmail = (user, order, cartItems, totalAmount) => 
         <div class="footer">
             <p><strong>Nazakat Nail Store</strong></p>
             <p>Your destination for premium nail products</p>
-            <p>📧 support@nazakat.com | 📞 +1 (555) 123-4567</p>
+            <p>📧 shopnazaqat.co@gmail.com | 📞 +92 (302) 1007534</p>
             
             <div class="social-links">
                 <a href="#">Follow us on Instagram</a> |

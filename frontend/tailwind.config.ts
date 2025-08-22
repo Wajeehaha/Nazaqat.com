@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
 	darkMode: ["class"],
@@ -13,7 +14,13 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				sm: '2rem',
+				lg: '4rem',
+				xl: '5rem',
+				'2xl': '6rem',
+			},
 			screens: {
 				'2xl': '1400px'
 			}
@@ -26,8 +33,8 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: 'hsl(0 0% 0%)',
-					foreground: 'hsl(0 0% 100%)'
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -53,6 +60,32 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				// Sophisticated nude pink palette for nail collection
+				subtle: {
+					'50': '#faf8f7',
+					'100': '#f5ede9',
+					'200': '#ebd8d1',
+					'300': '#dcb8ab',
+					'400': '#cd9485',
+					'500': '#be7968',
+					'600': '#ab6558',
+					'700': '#8e544a',
+					'800': '#754840',
+					'900': '#603e37',
+				},
+				// Elegant blackish-pink accents
+				sage: {
+					'50': '#fdf8f8',
+					'100': '#f9eeee',
+					'200': '#f0d8d8',
+					'300': '#e3b8b8',
+					'400': '#d18f8f',
+					'500': '#bb6b6b',
+					'600': '#a05252',
+					'700': '#854343',
+					'800': '#6f3a3a',
+					'900': '#5d3333',
+				}
 			},
 			fontFamily: {
 				playfair: ['Playfair Display', 'serif'],
@@ -103,5 +136,5 @@ export default {
 			}
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [tailwindcssAnimate],
 } satisfies Config;

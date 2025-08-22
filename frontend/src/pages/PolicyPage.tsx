@@ -1,11 +1,20 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import PageLayout from '@/components/layout/PageLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Shield, Truck, RefreshCw, CreditCard, Lock, Mail } from 'lucide-react';
+import { Shield, Truck, RefreshCw, CreditCard, Lock, Mail, ChevronDown, ChevronUp } from 'lucide-react';
 
 const PolicyPage = () => {
+  const [expandedCards, setExpandedCards] = useState<number[]>([]);
+
+  const toggleCard = (index: number) => {
+    setExpandedCards(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
   const policies = [
     {
       icon: Shield,
@@ -127,7 +136,7 @@ const PolicyPage = () => {
         },
         {
           heading: "Contact Details",
-          text: "Email: shopnazaqat.co@gmail.com | Phone: +92 3332306480 | Address: Riwind Road, Lahore, Pakistan"
+          text: "Email: shopnazaqat.co@gmail.com | Phone: +92 302 1007534 "
         },
         {
           heading: "Policy Updates",
@@ -165,17 +174,17 @@ const PolicyPage = () => {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-rose-50">
+      <div className="min-h-screen bg-gradient-to-br from-subtle-50 via-subtle-100 to-sage-50">
         {/* Hero Section */}
         <motion.section 
-          className="py-16 bg-gradient-to-r from-pink-600 to-purple-600 text-white"
+          className="py-12 sm:py-16 bg-gradient-to-r from-subtle-500 to-sage-500 text-white"
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
           <div className="container mx-auto px-4 text-center">
             <motion.h1 
-              className="text-4xl md:text-5xl font-bold font-playfair mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold font-playfair mb-3 sm:mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
@@ -183,7 +192,7 @@ const PolicyPage = () => {
               Policies & Terms
             </motion.h1>
             <motion.p 
-              className="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed"
+              className="text-sm sm:text-base md:text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed px-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
@@ -195,66 +204,100 @@ const PolicyPage = () => {
 
         {/* Policies Content */}
         <motion.section 
-          className="py-16"
+          className="py-8 sm:py-12 md:py-16"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           <div className="container mx-auto px-4">
-            <div className="space-y-12">
-              {policies.map((policy, index) => (
-                <motion.div key={index} variants={itemVariants}>
-                  <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-white/80 backdrop-blur-sm">
-                    <CardHeader className="bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-t-lg">
-                      <CardTitle className="flex items-center space-x-3 text-2xl font-playfair">
-                        <policy.icon className="h-8 w-8" />
-                        <span>{policy.title}</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-8">
-                      <div className="space-y-6">
-                        {policy.content.map((section, sectionIndex) => (
-                          <div key={sectionIndex}>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3 font-playfair">
-                              {section.heading}
-                            </h3>
-                            <p className="text-gray-600 leading-relaxed mb-4">
-                              {section.text}
-                            </p>
-                            {sectionIndex < policy.content.length - 1 && (
-                              <Separator className="my-4" />
-                            )}
+            <div className="space-y-6 sm:space-y-8 md:space-y-12">
+              {policies.map((policy, index) => {
+                const isExpanded = expandedCards.includes(index);
+                return (
+                  <motion.div key={index} variants={itemVariants}>
+                    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 bg-white/90 backdrop-blur-sm overflow-hidden">
+                      <CardHeader 
+                        className="bg-gradient-to-r from-subtle-400 to-sage-400 text-white cursor-pointer hover:from-subtle-500 hover:to-sage-500 transition-all duration-300"
+                        onClick={() => toggleCard(index)}
+                      >
+                        <CardTitle className="flex items-center justify-between text-lg sm:text-xl md:text-2xl font-playfair">
+                          <div className="flex items-center space-x-2 sm:space-x-3">
+                            <policy.icon className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 flex-shrink-0" />
+                            <span className="break-words">{policy.title}</span>
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+                          <motion.div
+                            initial={false}
+                            animate={{ rotate: isExpanded ? 180 : 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="flex-shrink-0 ml-2"
+                          >
+                            <ChevronDown className="h-5 w-5 sm:h-6 sm:w-6" />
+                          </motion.div>
+                        </CardTitle>
+                      </CardHeader>
+                      
+                      <AnimatePresence initial={false}>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            style={{ overflow: "hidden" }}
+                          >
+                            <CardContent className="p-4 sm:p-6 md:p-8">
+                              <div className="space-y-4 sm:space-y-6">
+                                {policy.content.map((section, sectionIndex) => (
+                                  <motion.div 
+                                    key={sectionIndex}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: sectionIndex * 0.1 }}
+                                  >
+                                    <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 font-playfair">
+                                      {section.heading}
+                                    </h3>
+                                    <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-3 sm:mb-4">
+                                      {section.text}
+                                    </p>
+                                    {sectionIndex < policy.content.length - 1 && (
+                                      <Separator className="my-3 sm:my-4" />
+                                    )}
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </Card>
+                  </motion.div>
+                );
+              })}
             </div>
 
             {/* Contact Section */}
             <motion.div 
-              className="mt-16 text-center"
+              className="mt-8 sm:mt-12 md:mt-16 text-center"
               variants={itemVariants}
             >
-              <Card className="bg-gradient-to-r from-pink-100 to-purple-100 border-0 shadow-lg">
-                <CardContent className="p-8">
-                  <h3 className="text-2xl font-bold font-playfair text-gray-800 mb-4">
+              <Card className="bg-gradient-to-r from-subtle-100 to-sage-100 border-0 shadow-lg">
+                <CardContent className="p-4 sm:p-6 md:p-8">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold font-playfair text-gray-800 mb-3 sm:mb-4">
                     Have Questions About Our Policies?
                   </h3>
-                  <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                  <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6 max-w-2xl mx-auto px-4">
                     Our customer support team is here to help. Contact us for any clarifications 
                     about our policies or if you need assistance with your order.
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <div className="flex items-center space-x-2 text-gray-700">
-                      <Mail className="h-5 w-5 text-pink-500" />
-                      <span>shopnazaqat.co@gmail.com</span>
+                  <div className="flex flex-col space-y-3 sm:space-y-4 md:flex-row md:space-y-0 md:gap-6 justify-center items-center">
+                    <div className="flex items-center space-x-2 text-gray-700 text-sm sm:text-base">
+                      <Mail className="h-4 w-4 sm:h-5 sm:w-5 text-subtle-500 flex-shrink-0" />
+                      <span className="break-all sm:break-normal">shopnazaqat.co@gmail.com</span>
                     </div>
-                    <div className="flex items-center space-x-2 text-gray-700">
-                      <span className="text-pink-500">📞</span>
-                      <span>+92 3332306480</span>
+                    <div className="flex items-center space-x-2 text-gray-700 text-sm sm:text-base">
+                      <span className="text-subtle-500">📞</span>
+                      <span>+92 302 1007534</span>
                     </div>
                   </div>
                 </CardContent>
@@ -263,10 +306,10 @@ const PolicyPage = () => {
 
             {/* Last Updated */}
             <motion.div 
-              className="mt-8 text-center text-gray-500"
+              className="mt-6 sm:mt-8 text-center text-gray-500"
               variants={itemVariants}
             >
-              <p className="text-sm">
+              <p className="text-xs sm:text-sm px-4">
                 Last updated: August 20, 2025
               </p>
             </motion.div>

@@ -202,47 +202,45 @@ const CheckoutPage = () => {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-rose-50 py-8">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold font-playfair text-gray-900 mb-2">
-                Checkout
-              </h1>
-              <p className="text-gray-600">Complete your order details</p>
-            </div>
+        <div className="min-h-screen bg-gradient-to-br from-subtle-50 via-subtle-100 to-sage-50 py-6 sm:py-8">
+          <div className="container mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="text-center mb-6 sm:mb-8">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-playfair text-gray-900 mb-2">
+                  Checkout
+                </h1>
+                <p className="text-sm sm:text-base text-gray-600">Complete your order details</p>
+              </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              {/* Order Summary */}
-              <div className="lg:col-span-1">
-                <Card className="shadow-lg">
-                  <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                    <CardTitle className="flex items-center gap-2">
-                      <Tag className="h-5 w-5" />
-                      Order Summary
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6 space-y-4">
-                    {cartItems.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-3">
-                        <img 
-                          src={item.image} 
-                          alt={item.name}
-                          className="h-12 w-12 object-cover rounded"
-                        />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm">{item.name}</h4>
-                          <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 max-w-7xl mx-auto">
+                {/* Order Summary */}
+                <div className="lg:col-span-1 order-2 lg:order-1">
+                  <Card className="shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-sage-400 to-subtle-400 text-white">
+                      <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <Tag className="h-4 w-4 sm:h-5 sm:w-5" />
+                        Order Summary
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                      {cartItems.map((item) => (
+                        <div key={item.id} className="flex items-center space-x-3">
+                          <img 
+                            src={item.image} 
+                            alt={item.name}
+                            className="h-10 w-10 sm:h-12 sm:w-12 object-cover rounded"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-xs sm:text-sm truncate">{item.name}</h4>
+                            <p className="text-gray-600 text-xs sm:text-sm">Qty: {item.quantity}</p>
+                          </div>
+                          <p className="font-semibold text-xs sm:text-sm">PKR {(Number(item.price) * item.quantity).toFixed(2)}</p>
                         </div>
-                        <p className="font-semibold">PKR {(Number(item.price) * item.quantity).toFixed(2)}</p>
-                      </div>
-                    ))}
-
-                    <Separator />
+                      ))}                    <Separator />
 
                     {/* Coupon Section */}
                     <div className="space-y-3">
@@ -320,7 +318,7 @@ const CheckoutPage = () => {
 
                     {/* Available Coupons Info */}
                     <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-800 font-medium">💡 Available Coupons:</p>
+                      <p className="text-xs sm:text-sm text-blue-800 font-medium">💡 Available Coupons:</p>
                       <ul className="text-xs text-blue-700 mt-1 space-y-1">
                         <li>• WELCOME10 - 10% off on orders above PKR 500</li>
                         <li>• SAVE50 - PKR 50 off on orders above PKR 1000</li>
@@ -332,85 +330,85 @@ const CheckoutPage = () => {
               </div>
 
               {/* Checkout Form */}
-              <div className="lg:col-span-2">
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="lg:col-span-2 order-1 lg:order-2">
+                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                   {/* Customer Information */}
                   <Card className="shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-pink-500 to-purple-500 text-white">
-                      <CardTitle>Customer Information</CardTitle>
+                    <CardHeader className="bg-gradient-to-r from-subtle-400 to-sage-400 text-white">
+                      <CardTitle className="text-base sm:text-lg">Customer Information</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div>
-                          <Label htmlFor="firstName">First Name *</Label>
+                          <Label htmlFor="firstName" className="text-sm">First Name *</Label>
                           <Input
                             id="firstName"
                             value={customerInfo.firstName}
                             onChange={(e) => handleInputChange('firstName', e.target.value)}
                             required
-                            className="mt-1"
+                            className="mt-1 text-sm"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lastName">Last Name *</Label>
+                          <Label htmlFor="lastName" className="text-sm">Last Name *</Label>
                           <Input
                             id="lastName"
                             value={customerInfo.lastName}
                             onChange={(e) => handleInputChange('lastName', e.target.value)}
                             required
-                            className="mt-1"
+                            className="mt-1 text-sm"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="email">Email *</Label>
+                          <Label htmlFor="email" className="text-sm">Email *</Label>
                           <Input
                             id="email"
                             type="email"
                             value={customerInfo.email}
                             onChange={(e) => handleInputChange('email', e.target.value)}
                             required
-                            className="mt-1"
+                            className="mt-1 text-sm"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="phone">Phone Number *</Label>
+                          <Label htmlFor="phone" className="text-sm">Phone Number *</Label>
                           <Input
                             id="phone"
                             value={customerInfo.phone}
                             onChange={(e) => handleInputChange('phone', e.target.value)}
                             required
-                            className="mt-1"
+                            className="mt-1 text-sm"
                             placeholder="+92 XXX XXXXXXX"
                           />
                         </div>
-                        <div className="md:col-span-2">
-                          <Label htmlFor="address">Complete Address *</Label>
+                        <div className="sm:col-span-2">
+                          <Label htmlFor="address" className="text-sm">Complete Address *</Label>
                           <Input
                             id="address"
                             value={customerInfo.address}
                             onChange={(e) => handleInputChange('address', e.target.value)}
                             required
-                            className="mt-1"
+                            className="mt-1 text-sm"
                             placeholder="House/Flat No, Street, Area"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="city">City</Label>
+                          <Label htmlFor="city" className="text-sm">City</Label>
                           <Input
                             id="city"
                             value={customerInfo.city}
                             onChange={(e) => handleInputChange('city', e.target.value)}
-                            className="mt-1"
+                            className="mt-1 text-sm"
                             placeholder="e.g., Karachi, Lahore"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="postalCode">Postal Code</Label>
+                          <Label htmlFor="postalCode" className="text-sm">Postal Code</Label>
                           <Input
                             id="postalCode"
                             value={customerInfo.postalCode}
                             onChange={(e) => handleInputChange('postalCode', e.target.value)}
-                            className="mt-1"
+                            className="mt-1 text-sm"
                             placeholder="e.g., 75500"
                           />
                         </div>
@@ -420,48 +418,48 @@ const CheckoutPage = () => {
 
                   {/* Payment Method */}
                   <Card className="shadow-lg">
-                    <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                      <CardTitle>Payment Method</CardTitle>
+                    <CardHeader className="bg-gradient-to-r from-sage-400 to-subtle-400 text-white">
+                      <CardTitle className="text-base sm:text-lg">Payment Method</CardTitle>
                     </CardHeader>
-                    <CardContent className="p-6">
+                    <CardContent className="p-4 sm:p-6">
                       <RadioGroup 
                         value={paymentMethod} 
                         onValueChange={(value: 'online' | 'cod') => setPaymentMethod(value)}
-                        className="space-y-4"
+                        className="space-y-3 sm:space-y-4"
                       >
-                        <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50">
-                          <RadioGroupItem value="online" id="online" />
-                          <div className="flex items-center space-x-3 flex-1">
-                            <CreditCard className="h-8 w-8 text-blue-600" />
-                            <div>
-                              <Label htmlFor="online" className="font-medium cursor-pointer">
+                        <div className="flex items-start space-x-3 p-3 sm:p-4 border rounded-lg hover:bg-gray-50">
+                          <RadioGroupItem value="online" id="online" className="mt-1" />
+                          <div className="flex items-start space-x-3 flex-1">
+                            <CreditCard className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mt-1" />
+                            <div className="flex-1">
+                              <Label htmlFor="online" className="font-medium cursor-pointer text-sm sm:text-base">
                                 Online Payment
                               </Label>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                                 Pay securely using PayFast (Credit/Debit Card, Bank Transfer)
                               </p>
                               <div className="flex gap-2 mt-2">
-                                <Badge variant="secondary">Secure</Badge>
-                                <Badge variant="secondary">Instant</Badge>
+                                <Badge variant="secondary" className="text-xs">Secure</Badge>
+                                <Badge variant="secondary" className="text-xs">Instant</Badge>
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50">
-                          <RadioGroupItem value="cod" id="cod" />
-                          <div className="flex items-center space-x-3 flex-1">
-                            <Truck className="h-8 w-8 text-green-600" />
-                            <div>
-                              <Label htmlFor="cod" className="font-medium cursor-pointer">
+                        <div className="flex items-start space-x-3 p-3 sm:p-4 border rounded-lg hover:bg-gray-50">
+                          <RadioGroupItem value="cod" id="cod" className="mt-1" />
+                          <div className="flex items-start space-x-3 flex-1">
+                            <Truck className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 mt-1" />
+                            <div className="flex-1">
+                              <Label htmlFor="cod" className="font-medium cursor-pointer text-sm sm:text-base">
                                 Cash on Delivery (COD)
                               </Label>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-xs sm:text-sm text-gray-600 mt-1">
                                 Pay when you receive your order at your doorstep
                               </p>
                               <div className="flex gap-2 mt-2">
-                                <Badge variant="secondary">No Advance Payment</Badge>
-                                <Badge variant="secondary">Convenient</Badge>
+                                <Badge variant="secondary" className="text-xs">No Advance Payment</Badge>
+                                <Badge variant="secondary" className="text-xs">Convenient</Badge>
                               </div>
                             </div>
                           </div>
@@ -494,12 +492,12 @@ const CheckoutPage = () => {
                   </Card>
 
                   {/* Submit Button */}
-                  <div className="flex justify-center">
+                  <div className="flex justify-center px-4">
                     <Button
                       type="submit"
                       size="lg"
                       disabled={isLoading}
-                      className="w-full md:w-auto px-12 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-3"
+                      className="w-full sm:w-auto sm:px-12 bg-gradient-to-r from-subtle-400 to-sage-400 hover:from-subtle-500 hover:to-sage-500 text-white py-3 text-sm sm:text-base"
                     >
                       {isLoading ? (
                         <div className="flex items-center space-x-2">

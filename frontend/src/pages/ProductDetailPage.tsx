@@ -60,9 +60,16 @@ const ProductDetailPage = () => {
     const fetchProductAndRelated = async () => {
       try {
         setIsLoading(true);
+        
+        // Reset states when navigating to new product
+        setActiveImage(0);
+        setQuantity(1);
+        setProduct(null);
+        setReviews([]);
+        setReviewStats(null);
 
-        // If no product is passed via state, fetch it by ID
-        if (!product && id) {
+        // Always fetch the product by ID to ensure fresh data
+        if (id) {
           const fetchedProduct = await fetchNailById(id);
           if (fetchedProduct) {
             setProduct(fetchedProduct);
@@ -84,6 +91,9 @@ const ProductDetailPage = () => {
 
           setRelatedProducts(related);
         }
+
+        // Fetch reviews for the new product
+        await fetchReviews();
       } catch (error) {
         console.error("Error fetching related products:", error);
         toast.error("Failed to load related products");
@@ -93,7 +103,7 @@ const ProductDetailPage = () => {
     };
 
     fetchProductAndRelated();
-  }, [category, id, product]);
+  }, [category, id]); // Removed 'product' from dependencies to prevent infinite loop
 
   const handleQuantityChange = (type) => {
     if (type === "decrease" && quantity > 1) {
@@ -129,6 +139,43 @@ const ProductDetailPage = () => {
       // Error toast will be shown by cart context
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Share functionality
+  const handleShare = async () => {
+    if (!product) return;
+
+    const productUrl = `${window.location.origin}/product/nails/${product._id}`;
+    const shareData = {
+      title: `${product.name} - Nazaqat.com`,
+      text: `Check out this amazing nail product: ${product.name} - Rs. ${product.price}`,
+      url: productUrl,
+    };
+
+    try {
+      // Check if Web Share API is supported (mobile devices)
+      if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        await navigator.share(shareData);
+        toast.success("Product shared successfully!");
+      } else {
+        // Fallback: Copy link to clipboard
+        await navigator.clipboard.writeText(productUrl);
+        toast.success("Product link copied to clipboard!");
+      }
+    } catch (error) {
+      // If both methods fail, show the link in a modal or alert
+      if (error.name !== 'AbortError') {
+        // Create a temporary input element to copy the link
+        const tempInput = document.createElement('input');
+        tempInput.value = productUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        
+        toast.success("Product link copied to clipboard!");
+      }
     }
   };
 
@@ -204,10 +251,10 @@ const ProductDetailPage = () => {
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
         <Button
           variant="ghost"
-          className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          className="mb-4 sm:mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -221,7 +268,7 @@ const ProductDetailPage = () => {
         ) : (
           product && (
             <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
                 {/* Product Images */}
                 <div className="space-y-4">
                   {/* Main Image Display */}
@@ -229,7 +276,7 @@ const ProductDetailPage = () => {
                     <img
                       src={(product.images && product.images[activeImage]) || product.image || "/placeholder.svg"}
                       alt={product.name}
-                      className="w-full h-[400px] md:h-[500px] object-contain p-4 transition-all duration-300 hover:scale-105"
+                      className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-contain p-4 transition-all duration-300 hover:scale-105"
                     />
                     
                     {/* Image Navigation Arrows */}
@@ -238,7 +285,7 @@ const ProductDetailPage = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white h-8 w-8 sm:h-10 sm:w-10"
                           onClick={() => setActiveImage(activeImage === 0 ? product.images.length - 1 : activeImage - 1)}
                         >
                           <ChevronLeft className="h-4 w-4" />
@@ -246,7 +293,7 @@ const ProductDetailPage = () => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white h-8 w-8 sm:h-10 sm:w-10"
                           onClick={() => setActiveImage(activeImage === product.images.length - 1 ? 0 : activeImage + 1)}
                         >
                           <ChevronRight className="h-4 w-4" />
@@ -272,12 +319,12 @@ const ProductDetailPage = () => {
                   
                   {/* Image Thumbnails */}
                   {product.images && product.images.length > 1 && (
-                    <div className="flex space-x-2 overflow-x-auto">
+                    <div className="flex space-x-2 overflow-x-auto pb-2">
                       {product.images.map((image, index) => (
                         <button
                           key={index}
                           onClick={() => setActiveImage(index)}
-                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                          className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 transition-all ${
                             activeImage === index ? 'border-primary' : 'border-gray-200 hover:border-gray-300'
                           }`}
                         >
@@ -293,43 +340,52 @@ const ProductDetailPage = () => {
                 </div>
 
                 {/* Product Details */}
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-4">
                       <Badge
                         variant="outline"
                         className="text-xs font-medium px-2.5 py-0.5 bg-primary/10 text-primary border-primary/20"
                       >
                         {category?.toUpperCase() || "FEATURED"}
                       </Badge>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="icon" className="rounded-full">
-                          <Heart className="h-5 w-5" />
+                      {/* Hide these buttons on mobile, show them below Add to Cart instead */}
+                      <div className="hidden sm:flex gap-2">
+                        <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 sm:h-10 sm:w-10">
+                          <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
                           <span className="sr-only">Add to wishlist</span>
                         </Button>
-                        <Button variant="ghost" size="icon" className="rounded-full">
-                          <Share2 className="h-5 w-5" />
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="rounded-full h-8 w-8 sm:h-10 sm:w-10"
+                          onClick={handleShare}
+                        >
+                          <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
                           <span className="sr-only">Share product</span>
                         </Button>
                       </div>
                     </div>
 
-                    <h1 className="text-3xl md:text-4xl font-bold font-playfair mt-2 mb-2 text-gray-900">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-playfair mt-2 mb-3 text-gray-900 leading-tight">
                       {product.name}
                     </h1>
 
                     <div className="flex items-center gap-4 mb-4">
                       <Rating value={product.rating} className="text-amber-400" />
-                      <span className="text-sm text-gray-500">({Math.floor(product.rating * 10)} reviews)</span>
+                      <span className="text-sm text-gray-500">
+                        ({reviewStats?.totalReviews || 0} {reviewStats?.totalReviews === 1 ? 'review' : 'reviews'})
+                      </span>
                     </div>
 
-                    <div className="flex items-baseline gap-2 mb-6">
-                      <span className="text-3xl font-bold text-primary">Rs. {product.price}</span>
+                    <div className="flex items-baseline gap-2 mb-4 sm:mb-6">
+                      <span className="text-3xl sm:text-4xl font-bold text-primary">Rs. {product.price}</span>
+                      <span className="text-sm text-gray-500 line-through opacity-0">Rs. {(Number(product.price) * 1.2).toFixed(2)}</span>
                     </div>
                   </div>
 
                   <div className="prose prose-gray max-w-none">
-                    <p className="text-gray-700">{product.description}</p>
+                    <p className="text-sm sm:text-base text-gray-700">{product.description}</p>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -340,50 +396,104 @@ const ProductDetailPage = () => {
                   <Separator />
 
                   {/* Quantity Selector */}
-                  <div>
-                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="bg-gray-50 p-4 rounded-lg mobile-quantity-selector">
+                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-3">
                       Quantity
                     </label>
-                    <div className="flex items-center w-fit border rounded-md">
+                    <div className="flex items-center justify-center w-full sm:w-fit border-2 border-gray-300 rounded-lg bg-white shadow-sm">
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         onClick={() => handleQuantityChange("decrease")}
                         disabled={quantity <= 1}
-                        className="h-10 w-10 rounded-none"
+                        className="h-12 w-12 sm:h-10 sm:w-10 rounded-l-lg border-r hover:bg-gray-100 disabled:opacity-50 cart-button"
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-5 w-5 sm:h-4 sm:w-4" />
                       </Button>
-                      <div className="w-12 text-center">{quantity}</div>
+                      <div className="flex-1 sm:w-16 text-center text-lg sm:text-base font-semibold py-3 px-4 bg-white">
+                        {quantity}
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
                         onClick={() => handleQuantityChange("increase")}
-                        className="h-10 w-10 rounded-none"
+                        className="h-12 w-12 sm:h-10 sm:w-10 rounded-r-lg border-l hover:bg-gray-100 cart-button"
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-5 w-5 sm:h-4 sm:w-4" />
                       </Button>
                     </div>
                   </div>
 
                   {/* Add to Cart Button */}
-                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    <Button size="lg" className="flex-1" onClick={handleAddToCart} disabled={isLoading}>
-                      <ShoppingCart className="mr-2 h-5 w-5" />
-                      Add to Cart
+                  <div className="pt-4">
+                    <Button 
+                      size="lg" 
+                      className="w-full h-14 sm:h-12 text-lg sm:text-base font-semibold bg-gradient-to-r from-subtle-400 to-sage-400 hover:from-subtle-500 hover:to-sage-500 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] mobile-add-to-cart cart-button" 
+                      onClick={handleAddToCart} 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center justify-center space-x-2">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          <span>Adding to Cart...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center space-x-2">
+                          <ShoppingCart className="h-5 w-5 sm:h-4 sm:w-4" />
+                          <span className="hidden sm:inline">Add to Cart • Rs. {(Number(product.price) * quantity).toFixed(2)}</span>
+                          <span className="sm:hidden">Add Rs. {(Number(product.price) * quantity).toFixed(2)} to Cart</span>
+                        </div>
+                      )}
                     </Button>
+                    
+                    {/* Additional Action Buttons for Mobile */}
+                    <div className="grid grid-cols-2 gap-3 mt-3 sm:hidden">
+                      <Button 
+                        variant="outline" 
+                        className="h-12 border-2 border-subtle-400 text-subtle-500 hover:bg-subtle-50 font-medium cart-button"
+                      >
+                        <Heart className="h-4 w-4 mr-2" />
+                        Wishlist
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="h-12 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium cart-button"
+                        onClick={handleShare}
+                      >
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Share
+                      </Button>
+                    </div>
+                    
+                    {/* Mobile Trust Indicators */}
+                    <div className="mt-4 sm:hidden">
+                      <div className="flex items-center justify-center space-x-4 text-xs text-gray-600">
+                        <div className="flex items-center">
+                          <Check className="h-3 w-3 text-green-500 mr-1" />
+                          <span>Secure Payment</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Check className="h-3 w-3 text-green-500 mr-1" />
+                          <span>Fast Delivery</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Check className="h-3 w-3 text-green-500 mr-1" />
+                          <span>Easy Returns</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Reviews Section */}
-              <div className="mt-16">
+              <div className="mt-12 sm:mt-16">
                 <Tabs defaultValue="reviews" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="reviews">Reviews ({reviewStats.totalReviews})</TabsTrigger>
-                    <TabsTrigger value="write-review">Write Review</TabsTrigger>
+                    <TabsTrigger value="reviews" className="text-xs sm:text-sm">Reviews ({reviewStats.totalReviews})</TabsTrigger>
+                    <TabsTrigger value="write-review" className="text-xs sm:text-sm">Write Review</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="reviews" className="mt-6 space-y-6">
@@ -415,7 +525,7 @@ const ProductDetailPage = () => {
                         </p>
                         <Button
                           onClick={() => navigate('/auth')}
-                          className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                          className="bg-gradient-to-r from-subtle-400 to-sage-400 hover:from-subtle-500 hover:to-sage-500"
                         >
                           Login / Sign Up
                         </Button>
@@ -438,7 +548,7 @@ const ProductDetailPage = () => {
                         </p>
                         <Button
                           onClick={handleAddToCart}
-                          className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600"
+                          className="bg-gradient-to-r from-subtle-400 to-sage-400 hover:from-subtle-500 hover:to-sage-500"
                         >
                           Add to Cart
                         </Button>
@@ -450,29 +560,52 @@ const ProductDetailPage = () => {
 
              
 {/* Related Products Section */}
-<div className="mt-16">
-  <h2 className="text-2xl font-bold mb-6">You might also like</h2>
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div className="mt-12 sm:mt-16">
+  <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 px-4 sm:px-0">You might also like</h2>
+  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 px-4 sm:px-0">
     {relatedProducts.map((relatedProduct) => (
       <div
         key={relatedProduct._id}
-        onClick={() =>
-          navigate(`/product/nails/${relatedProduct._id}`, {
-            state: { product: relatedProduct },
-          })
-        }
-        className="cursor-pointer bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow"
+        className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow"
       >
-        <div className="w-full h-48 flex items-center justify-center overflow-hidden">
-          <img
-            src={relatedProduct.image}
-            alt={relatedProduct.name}
-            className="w-full h-full object-contain"
-          />
+        <div 
+          onClick={() =>
+            navigate(`/product/nails/${relatedProduct._id}`, {
+              state: { product: relatedProduct },
+            })
+          }
+          className="cursor-pointer"
+        >
+          <div className="w-full h-32 sm:h-40 md:h-48 flex items-center justify-center overflow-hidden">
+            <img
+              src={relatedProduct.image}
+              alt={relatedProduct.name}
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="p-3 sm:p-4">
+            <h3 className="font-medium text-gray-900 truncate text-sm sm:text-base">{relatedProduct.name}</h3>
+            <p className="text-xs sm:text-sm text-gray-500 mb-2">Rs. {relatedProduct.price}</p>
+          </div>
         </div>
-        <div className="p-4">
-          <h3 className="font-medium text-gray-900 truncate">{relatedProduct.name}</h3>
-          <p className="text-sm text-gray-500 mb-2">Rs. {relatedProduct.price}</p>
+        <div className="px-3 pb-3 sm:px-4 sm:pb-4">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              const productForCart = {
+                id: relatedProduct._id,
+                name: relatedProduct.name,
+                image: relatedProduct.image,
+                price: relatedProduct.price.toString(),
+                rating: relatedProduct.rating,
+                description: relatedProduct.description,
+              };
+              addToCart(productForCart, 1);
+            }}
+            className="w-full bg-gradient-to-r from-subtle-400 to-sage-400 hover:from-subtle-500 hover:to-sage-500 text-white text-xs sm:text-sm py-2"
+          >
+            Add to Cart
+          </Button>
         </div>
       </div>
     ))}

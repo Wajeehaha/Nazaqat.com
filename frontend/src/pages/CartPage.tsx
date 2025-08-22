@@ -45,25 +45,25 @@ const handleCheckout = () => {
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         {/* Back Button */}
         <Button
           variant="ghost"
-          className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+          className="mb-4 sm:mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
         
-        <h1 className="text-3xl font-bold font-playfair mb-8">Your Cart</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold font-playfair mb-6 sm:mb-8">Your Cart</h1>
 
         {cartItems.length === 0 ? (
-          <div className="text-center py-16 bg-gray-50 rounded-lg">
-            <ShoppingCart className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-            <h2 className="text-2xl font-medium mb-4">Your cart is empty</h2>
-            <p className="text-gray-500 mb-8">Looks like you haven't added any items to your cart yet.</p>
-            <Button asChild>
+          <div className="text-center py-12 sm:py-16 bg-gray-50 rounded-lg">
+            <ShoppingCart className="h-12 w-12 sm:h-16 sm:w-16 mx-auto text-gray-400 mb-4" />
+            <h2 className="text-xl sm:text-2xl font-medium mb-4">Your cart is empty</h2>
+            <p className="text-sm sm:text-base text-gray-500 mb-6 sm:mb-8 px-4">Looks like you haven't added any items to your cart yet.</p>
+            <Button asChild className="w-full sm:w-auto">
               <Link to="/">Start Shopping</Link>
             </Button>
           </div>
@@ -71,10 +71,10 @@ const handleCheckout = () => {
           // Show the CheckoutForm when the user clicks "Checkout"
           <CheckoutForm onSuccess={handleCheckoutSuccess} />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Cart items */}
-            <div className="md:col-span-2">
-              <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                 {cartItems.map((item) => (
                   <CartItem
                     key={item.id}
@@ -102,15 +102,15 @@ const handleCheckout = () => {
             </div>
 
             {/* Order Summary */}
-            <div className="bg-white rounded-lg shadow-sm p-6 h-fit">
+            <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 h-fit">
               <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
 
               <div className="space-y-2 mb-4">
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span className="text-gray-600">Items ({cartItems.length})</span>
                   <span>Rs. {subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-sm sm:text-base">
                   <span className="text-gray-600">Shipping</span>
                   <span>Free</span>
                 </div>

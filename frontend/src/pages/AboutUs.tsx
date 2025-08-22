@@ -14,28 +14,28 @@ const AboutUs = () => {
     {
       id: 1,
       name: "Anoushay Javed",
-      role: "Founder & Creative Director",
+      role: "Founder",
       image: owner1,
-      description: "Passionate about nail art and beauty, Wajiha brings creativity and innovation to every collection. With years of experience in the beauty industry, she ensures every product meets the highest standards of quality and style.",
+      description: "Dear valued customers and supporters, I am Anoushay Javaid Butt, Founder and CEO of Nazaqat. It is with great pleasure that I introduce our nail business, born out of a passion for beauty and creativity. As a university student-turned-entrepreneur, I am eager to share our unique nail designs with you and hope that they will bring a touch of elegance and sophistication to your everyday life.",
       specialties: ["Nail Art Design", "Product Curation", "Brand Vision"],
       quote: "Beauty is about expressing your unique self through every detail."
     },
     {
       id: 2,
-      name: "Emaan",
-      role: "Operations & Strategy",
+      name: "Eman Imran",
+      role: "Creative Director",
       image: owner2,
-      description: "Our strategic mind behind the brand's growth and customer satisfaction. She focuses on ensuring that every customer receives exceptional service and quality products that exceed expectations.",
+      description: "Salam dear customers, welcome to Shonazaqat.co. When I began this journey, my dream was to create a brand that reflects grace, individuality, and timeless beauty. To me, Nazaqat is more than nails—it’s a feeling: soft, elegant, yet powerful. Every design is crafted to balance simplicity with sophistication, whether for everyday wear or special moments. Thank you for trusting us to add a touch of elegance to your life—because true beauty lies in the little details.",
       specialties: ["Business Strategy", "Customer Experience", "Quality Assurance"],
       quote: "Excellence is not just a goal, it's our commitment to every customer."
     }
   ];
 
   const stats = [
-    { icon: Users, label: "Happy Customers", value: "5000+" },
-    { icon: Star, label: "5-Star Reviews", value: "4.9/5" },
-    { icon: Award, label: "Years Experience", value: "3+" },
-    { icon: Heart, label: "Products Sold", value: "10K+" }
+    { icon: Users, label: "Happy Customers", value: "1000+" },
+    { icon: Star, label: "5-Star Reviews", value: "4.5/5" },
+    { icon: Award, label: "Years Experience", value: "1+" },
+    { icon: Heart, label: "Products Sold", value: "1K+" }
   ];
 
   const containerVariants = {
@@ -62,7 +62,7 @@ const AboutUs = () => {
 
   return (
     <PageLayout>
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-subtle-50 via-white to-sage-50">
         {/* Hero Section */}
         <motion.section 
           className="py-20 relative overflow-hidden"
@@ -76,13 +76,13 @@ const AboutUs = () => {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8 }}
             >
-              <h1 className="text-5xl md:text-7xl font-bold font-playfair mb-6 bg-gradient-to-r from-pink-600 via-purple-600 to-black bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-7xl font-bold font-playfair mb-6 bg-gradient-to-r from-subtle-500 via-sage-500 to-gray-800 bg-clip-text text-transparent">
                 About Nazakat
               </h1>
               <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto leading-relaxed">
                 Where passion meets artistry in the world of nail beauty
               </p>
-              <div className="w-24 h-1 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto rounded-full"></div>
+              <div className="w-24 h-1 bg-gradient-to-r from-subtle-400 to-sage-400 mx-auto rounded-full"></div>
             </motion.div>
           </div>
           
@@ -215,7 +215,7 @@ const AboutUs = () => {
 
         {/* Mission Section */}
         <motion.section 
-          className="py-20 bg-gradient-to-r from-pink-600 to-purple-600 text-white"
+          className="py-20 bg-gradient-to-r from-subtle-500 to-sage-500 text-white"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}

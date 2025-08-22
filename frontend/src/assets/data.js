@@ -221,7 +221,8 @@ export const removeFromCart = async (userId, productId) => {
 
 // Clear all items from cart
 export const clearCartAPI = async (userId) => {
-  console.log("Clearing cart for userId:", userId);
+  console.log("clearCartAPI called with userId:", userId);
+  console.log("typeof userId:", typeof userId);
   
   // Validate userId
   if (!userId || userId === 'null' || userId === 'undefined') {
@@ -229,12 +230,20 @@ export const clearCartAPI = async (userId) => {
     throw new Error('User authentication required. Please log in.');
   }
   
+  const url = `${API_BASE_URL}/cart/clear/${userId}`;
+  console.log("Making DELETE request to:", url);
+  
   try {
-    const response = await axios.delete(`${API_BASE_URL}/cart/clear/${userId}`);
-    console.log('clearCart API response:', response.data);
+    const response = await axios.delete(url);
+    console.log('clearCart API response status:', response.status);
+    console.log('clearCart API response data:', response.data);
     return response.data; // Return the updated cart
   } catch (error) {
-    console.error('Error clearing cart:', error);
+    console.error('Error clearing cart - full error:', error);
+    console.error('Error response status:', error.response?.status);
+    console.error('Error response data:', error.response?.data);
+    console.error('Error config URL:', error.config?.url);
+    
     if (error.response?.status === 401) {
       throw new Error('Please log in to clear cart');
     }

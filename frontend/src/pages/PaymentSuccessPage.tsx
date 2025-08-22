@@ -122,7 +122,7 @@ const PaymentSuccessPage = () => {
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Button
                       onClick={() => navigate('/orders')}
-                      className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white"
+                      className="bg-gradient-to-r from-subtle-400 to-sage-400 hover:from-subtle-500 hover:to-sage-500 text-white"
                     >
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       View Orders
@@ -130,7 +130,7 @@ const PaymentSuccessPage = () => {
                     <Button
                       onClick={() => navigate('/')}
                       variant="outline"
-                      className="border-pink-300 text-pink-600 hover:bg-pink-50"
+                      className="border-subtle-300 text-subtle-500 hover:bg-subtle-50"
                     >
                       Continue Shopping
                       <ArrowRight className="h-4 w-4 ml-2" />

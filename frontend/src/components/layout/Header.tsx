@@ -37,25 +37,25 @@ const Header: React.FC = () => {
 
   const NavLinks = () => (
     <>
-      <Link to="/nails" className="header-link">All Nails</Link>
+      <Link to="/nails" className="header-link block py-2">All Nails</Link>
       {/* <Link to="/nails/category/gel-nails" className="header-link">Gel Nails</Link>
       <Link to="/nails/category/acrylic-nails" className="header-link">Acrylic Nails</Link>
       <Link to="/nails/category/nail-art" className="header-link">Nail Art</Link>
       <Link to="/nails/category/nail-care" className="header-link">Nail Care</Link> */}
-      <Link to="/collections/collection1" className="header-link">Dilnasheen</Link>
-      <Link to="/collections/collection2" className="header-link">Narmeen</Link>
-      <Link to="/about" className="header-link">About Us</Link>
-      <Link to="/policy" className="header-link">Policies</Link>
+      <Link to="/collections/collection1" className="header-link block py-2">Dilnasheen</Link>
+      <Link to="/collections/collection2" className="header-link block py-2">Narmeen</Link>
+      <Link to="/about" className="header-link block py-2">About Us</Link>
+      <Link to="/policy" className="header-link block py-2">Policies</Link>
     </>
   );
 
   const AuthButtons = () => (
-    <div className="flex items-center space-x-2">
+    <div className="flex flex-col md:flex-row items-stretch md:items-center space-y-2 md:space-y-0 md:space-x-2">
       {isLoggedIn ? (
         <Button
           variant="outline"
           size="sm"
-          className="flex items-center border-black text-black hover:bg-black hover:text-white"
+          className="flex items-center justify-center border-black text-black hover:bg-black hover:text-white w-full md:w-auto"
           onClick={handleLogout}
         >
           Logout
@@ -65,7 +65,7 @@ const Header: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            className="flex items-center"
+            className="flex items-center justify-center w-full md:w-auto"
             onClick={() => navigate("/auth")}
           >
             <LogIn className="mr-1 h-4 w-4" />
@@ -74,7 +74,7 @@ const Header: React.FC = () => {
           <Button
             variant="default"
             size="sm"
-            className="flex items-center bg-black hover:bg-gray-800"
+            className="flex items-center justify-center bg-black hover:bg-gray-800 w-full md:w-auto"
             onClick={() => navigate("/auth")}
           >
             <UserPlus className="mr-1 h-4 w-4" />
@@ -86,16 +86,16 @@ const Header: React.FC = () => {
   );
 
   return (
-    <header className="bg-white shadow-sm sticky top-8 z-50">
-      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between py-4">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between py-3 md:py-4">
         
         {/* Logo Section */}
-        <div className="flex items-center justify-between w-full md:w-auto mb-4 md:mb-0">
+        <div className="flex items-center justify-between w-full md:w-auto mb-3 md:mb-0">
           <Link to="/" className="flex items-center">
             <img 
               src={logo} 
               alt="Logo" 
-              className="h-12 w-auto object-cover" 
+              className="h-10 md:h-12 w-auto object-cover" 
             /> {/* Replace NAZAKAT with logo */}
           </Link>
 
@@ -120,16 +120,16 @@ const Header: React.FC = () => {
                     <Menu className="h-6 w-6" />
                   </Button>
                 </SheetTrigger>
-              <SheetContent side="right" className="w-[85%] sm:w-[385px]">
-                <SheetHeader>
+              <SheetContent side="right" className="w-[90%] sm:w-[385px] p-0">
+                <SheetHeader className="p-6 pb-0">
                   <SheetTitle className="text-xl font-bold">Menu</SheetTitle>
                 </SheetHeader>
-                <nav className="flex flex-col space-y-4 mt-6">
+                <nav className="flex flex-col space-y-1 mt-4 px-6">
                   <NavLinks />
                 </nav>
                 
                 {/* Cart Button for Mobile */}
-                <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="mt-6 pt-4 border-t border-gray-200 px-6">
                   <Link to="/cart" className="flex items-center space-x-3 p-3 hover:bg-gray-100 rounded-md transition-colors">
                     <ShoppingCart className="h-5 w-5" />
                     <span className="text-base font-medium">Cart</span>
@@ -141,7 +141,7 @@ const Header: React.FC = () => {
                   </Link>
                 </div>
                 
-                <div className="mt-8">
+                <div className="mt-6 px-6 pb-6">
                   <AuthButtons />
                 </div>
               </SheetContent>
@@ -151,21 +151,21 @@ const Header: React.FC = () => {
         </div>
 
         {/* Navigation Links, Search Bar, and Auth Buttons */}
-        <div className="hidden md:flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-4 flex-1 justify-end">
           <nav className="hidden md:flex items-center space-x-6">
             <NavLinks />
           </nav>
 
           {/* Conditionally Render Search Bar */}
           {location.pathname === "/" && (
-            <form onSubmit={handleSearch} className="relative">
+            <form onSubmit={handleSearch} className="relative hidden lg:block">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                className="pl-8 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black w-48"
               />
             </form>
           )}

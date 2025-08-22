@@ -79,7 +79,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
           {/* Review Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold">
+              <div className="w-10 h-10 bg-gradient-to-r from-subtle-300 to-sage-300 rounded-full flex items-center justify-center text-white font-bold">
                 {review.userId.name.charAt(0).toUpperCase()}
               </div>
               <div>
