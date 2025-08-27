@@ -17,16 +17,16 @@ This means the **MongoDB credentials are incorrect** or **environment variables 
 2. Check if your cluster is running
 3. Verify the connection string
 
-### **Step 2: Double-Check Vercel Environment Variables**
+### **Step 2: Use the CORRECT MongoDB Connection String**
 
 Go to **Vercel Dashboard → shopnazaqat-com → Settings → Environment Variables**
 
-**CRITICAL**: Make sure these are set **EXACTLY** as shown:
+**UPDATE THE MONGO_URI** with the correct cluster name:
 
 ```bash
-# Primary MongoDB Connection (REQUIRED)
+# CORRECT MongoDB Connection String (your actual cluster)
 MONGO_URI
-mongodb+srv://wajeehazulfiqar120:QNuyv9XGATK43YCg@cluster0.ke8ivmy.mongodb.net/dachi-store?retryWrites=true&w=majority
+mongodb+srv://wajeehazulfiqar120:QNuyv9XGATK43YCg@da-chi.zebhaml.mongodb.net/dachi-store?retryWrites=true&w=majority&appName=da-chi
 
 # Backup credentials (in case MONGO_URI fails)
 DB_USERNAME
