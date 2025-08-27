@@ -136,6 +136,29 @@ app.get('/', (req, res) => {
     });
 });
 
+// Debug endpoint to check environment variables (remove in production)
+app.get('/api/debug-env', (req, res) => {
+    // Only show this in development or with a secret key for security
+    if (process.env.NODE_ENV === 'production') {
+        return res.status(403).json({ message: 'Debug endpoint disabled in production' });
+    }
+    
+    res.json({
+        timestamp: new Date().toISOString(),
+        environment: {
+            NODE_ENV: process.env.NODE_ENV,
+            hasMongoUri: !!process.env.MONGO_URI,
+            hasDbUsername: !!process.env.DB_USERNAME,
+            hasDbPassword: !!process.env.DB_PASSWORD,
+            mongoUriLength: process.env.MONGO_URI ? process.env.MONGO_URI.length : 0,
+            mongoUriStart: process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 30) + '...' : 'not set',
+            dbUsername: process.env.DB_USERNAME || 'not set',
+            // Don't show actual password, just if it exists
+            dbPasswordSet: !!process.env.DB_PASSWORD
+        }
+    });
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ 

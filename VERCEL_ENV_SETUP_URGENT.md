@@ -17,9 +17,13 @@ This means the environment variables are **NOT SET** in your Vercel deployment.
 Click **"Add"** and enter each variable:
 
 ```bash
-# Database Configuration (REQUIRED)
+# Database Configuration (REQUIRED) - CHECK THESE CAREFULLY
 MONGO_URI
 mongodb+srv://wajeehazulfiqar120:QNuyv9XGATK43YCg@cluster0.ke8ivmy.mongodb.net/dachi-store?retryWrites=true&w=majority
+
+# ⚠️ IMPORTANT: If you get "Authentication failed" error, try this alternative:
+# MONGO_URI
+# mongodb+srv://wajeehazulfiqar120:QNuyv9XGATK43YCg@cluster0.zebhaml.mongodb.net/dachi-store?retryWrites=true&w=majority
 
 # Alternative Database Credentials
 DB_USERNAME
