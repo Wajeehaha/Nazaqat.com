@@ -29,25 +29,38 @@ const couponRoutes = require('../routes/couponRoutes');
 const connectDB = async () => {
     try {
         let mongoURI = process.env.MONGO_URI;
+        
+        // Log environment check for debugging
+        console.log('Environment check:');
+        console.log('- NODE_ENV:', process.env.NODE_ENV);
+        console.log('- MONGO_URI exists:', !!process.env.MONGO_URI);
+        console.log('- DB_USERNAME exists:', !!process.env.DB_USERNAME);
+        console.log('- DB_PASSWORD exists:', !!process.env.DB_PASSWORD);
+        
         if (!mongoURI) {
             if (!process.env.DB_USERNAME || !process.env.DB_PASSWORD) {
-                throw new Error('MongoDB credentials are missing in .env');
+                throw new Error('MongoDB credentials are missing. Please set MONGO_URI or DB_USERNAME/DB_PASSWORD in Vercel environment variables.');
             }
             mongoURI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ke8ivmy.mongodb.net/dachi-store?retryWrites=true&w=majority`;
+            console.log('Using constructed MongoDB URI from credentials');
+        } else {
+            console.log('Using MONGO_URI from environment');
         }
         
+        console.log('Attempting to connect to MongoDB...');
         const connection = await mongoose.connect(mongoURI, {
-            serverSelectionTimeoutMS: 5000,
+            serverSelectionTimeoutMS: 10000, // Increased timeout for serverless
             socketTimeoutMS: 45000,
             bufferMaxEntries: 0,
             bufferCommands: false,
         });
         
-        console.log('Connected to MongoDB'.blue);
+        console.log('Connected to MongoDB successfully'.blue);
         return connection;
     } catch (err) {
-        console.error('Error connecting to MongoDB:'.red, err);
-        throw err;
+        console.error('Error connecting to MongoDB:'.red, err.message);
+        console.error('Full error:', err);
+        throw new Error(`Database connection failed: ${err.message}`);
     }
 };
 
@@ -85,15 +98,21 @@ const upload = multer({
 app.use(async (req, res, next) => {
     try {
         if (mongoose.connection.readyState === 0) {
-            console.log('Connecting to database...');
+            console.log('Database not connected, attempting to connect...');
             await connectDB();
+        } else if (mongoose.connection.readyState === 1) {
+            console.log('Database already connected');
+        } else {
+            console.log('Database connection state:', mongoose.connection.readyState);
         }
         next();
     } catch (error) {
-        console.error('Database connection error:', error);
+        console.error('Database connection middleware error:', error);
         res.status(500).json({ 
             error: 'Database Connection Error',
-            message: 'Failed to connect to database'
+            message: error.message || 'Failed to connect to database',
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+            timestamp: new Date().toISOString()
         });
     }
 });
@@ -109,7 +128,14 @@ app.get('/', (req, res) => {
     res.json({ 
         message: 'Nazakat API is running...', 
         timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV 
+        env: process.env.NODE_ENV,
+        mongoConnectionState: mongoose.connection.readyState,
+        environmentCheck: {
+            hasMongoUri: !!process.env.MONGO_URI,
+            hasDbUsername: !!process.env.DB_USERNAME,
+            hasDbPassword: !!process.env.DB_PASSWORD,
+            hasJwtSecret: !!process.env.JWT_SECRET
+        }
     });
 });
 
@@ -118,7 +144,17 @@ app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'OK', 
         message: 'Nazakat Backend API is running',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        database: {
+            connected: mongoose.connection.readyState === 1,
+            state: mongoose.connection.readyState,
+            stateNames: {
+                0: 'disconnected',
+                1: 'connected', 
+                2: 'connecting',
+                3: 'disconnecting'
+            }
+        }
     });
 });
 
