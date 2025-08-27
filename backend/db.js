@@ -14,8 +14,17 @@ const connectDB = async () => {
             }
             mongoURI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@da-chi.zebhaml.mongodb.net/dachi-store?retryWrites=true&w=majority`;
         }
-        await mongoose.connect(mongoURI);
+        
+        // Add connection options for better reliability
+        const connection = await mongoose.connect(mongoURI, {
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+            bufferMaxEntries: 0, // Disable mongoose buffering
+            bufferCommands: false, // Disable mongoose buffering
+        });
+        
         console.log('Connected to MongoDB'.blue);
+        return connection;
     } catch (err) {
         console.error('Error connecting to MongoDB:'.red, err);
         // Don't exit process in serverless environment

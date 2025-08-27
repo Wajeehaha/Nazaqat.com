@@ -48,9 +48,13 @@ const upload = multer({
 // In production, serve images from cloud storage instead
 // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Connect to MongoDB
+// Connect to MongoDB with better error handling
 connectDB().catch(err => {
     console.error('Database connection failed:', err);
+    // Don't exit in serverless environment, just log the error
+    if (process.env.VERCEL !== '1') {
+        process.exit(1);
+    }
 });
 
 // Add request logging middleware
@@ -416,6 +420,26 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/payment', paymentRoutes);
 // Coupon routes
 app.use('/api/coupons', couponRoutes);
+
+// Global error handler
+app.use((error, req, res, next) => {
+    console.error('❌ Global error handler:', error);
+    res.status(500).json({
+        error: 'Internal Server Error',
+        message: error.message || 'Something went wrong',
+        timestamp: new Date().toISOString(),
+        ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+    });
+});
+
+// Handle 404 routes
+app.use('*', (req, res) => {
+    res.status(404).json({
+        error: 'Not Found',
+        message: `Route ${req.originalUrl} not found`,
+        timestamp: new Date().toISOString()
+    });
+});
 
 // Export the app for Vercel (serverless)
 module.exports = app;
