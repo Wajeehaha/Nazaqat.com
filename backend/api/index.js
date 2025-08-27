@@ -49,10 +49,7 @@ const connectDB = async () => {
         
         console.log('Attempting to connect to MongoDB...');
         const connection = await mongoose.connect(mongoURI, {
-            serverSelectionTimeoutMS: 10000, // Increased timeout for serverless
-            socketTimeoutMS: 45000,
-            bufferMaxEntries: 0,
-            bufferCommands: false,
+            serverSelectionTimeoutMS: 10000, // 10 seconds timeout
         });
         
         console.log('Connected to MongoDB successfully'.blue);
