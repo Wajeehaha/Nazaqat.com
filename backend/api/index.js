@@ -81,6 +81,23 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 }
 });
 
+// Database connection middleware for serverless
+app.use(async (req, res, next) => {
+    try {
+        if (mongoose.connection.readyState === 0) {
+            console.log('Connecting to database...');
+            await connectDB();
+        }
+        next();
+    } catch (error) {
+        console.error('Database connection error:', error);
+        res.status(500).json({ 
+            error: 'Database Connection Error',
+            message: 'Failed to connect to database'
+        });
+    }
+});
+
 // Request logging middleware
 app.use((req, res, next) => {
     console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
@@ -422,34 +439,5 @@ app.use((req, res) => {
     });
 });
 
-// Serverless function handler for Vercel
-module.exports = async (req, res) => {
-    try {
-        // Connect to database on each request (serverless pattern)
-        if (mongoose.connection.readyState === 0) {
-            await connectDB();
-        }
-
-        // Handle CORS preflight requests
-        if (req.method === 'OPTIONS') {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-            res.status(200).end();
-            return;
-        }
-
-        // Log the request
-        console.log(`📡 ${req.method} ${req.url} - ${new Date().toISOString()}`);
-
-        // Handle the request with Express app
-        return app(req, res);
-    } catch (error) {
-        console.error('❌ Serverless function error:', error);
-        res.status(500).json({ 
-            error: 'Internal Server Error',
-            message: 'Function invocation failed',
-            timestamp: new Date().toISOString()
-        });
-    }
-};
+// Export the Express app directly for Vercel
+module.exports = app;
