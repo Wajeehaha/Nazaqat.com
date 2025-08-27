@@ -1,0 +1,31 @@
+# Dependencies
+node_modules
+
+# Environment files (these will be set in Vercel dashboard)
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# Development files
+*.md
+README.md
+EMAIL_IMAGES_FIX.md
+
+# Seed files (not needed in production)
+seed*.js
+updateCollections.js
+
+# Uploads directory (use cloud storage in production)
+uploads/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
