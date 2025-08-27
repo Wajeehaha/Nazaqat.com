@@ -8,6 +8,8 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "build": "echo 'No build step required'",
+    "deploy": "vercel --prod",
+    "deploy-dev": "vercel",
     "seed": "node seedData.js",
     "seed-nails": "node seedNailData.js",
     "seed-dummy": "node seedDummyNails.js"
