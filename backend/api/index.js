@@ -4,8 +4,5 @@ const app = require('../server');
 // Debug logging for Vercel
 console.log('🚀 Serverless function started');
 
-// For Vercel, we need to export as a function
-module.exports = (req, res) => {
-    console.log(`📡 Request: ${req.method} ${req.url}`);
-    return app(req, res);
-};
+// Export the Express app directly for Vercel
+module.exports = app;
