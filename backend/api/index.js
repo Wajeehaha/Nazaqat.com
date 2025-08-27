@@ -393,7 +393,8 @@ app.post('/api/submit-order', async (req, res) => {
     }
 });
 
-// Mount route handlers
+// Mount route handlers - Note: Routes should be mounted without /api prefix
+// since Vercel routes everything to this function
 app.use('/api', searchRoutes);
 app.use('/api/cart', cartAPI);
 app.use('/api/auth', authRoutes);
@@ -413,7 +414,7 @@ app.use((error, req, res, next) => {
 });
 
 // Handle 404 routes
-app.use('*', (req, res) => {
+app.use((req, res) => {
     res.status(404).json({
         error: 'Not Found',
         message: `Route ${req.originalUrl} not found`,
