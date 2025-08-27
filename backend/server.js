@@ -14,33 +14,25 @@ const User = require('./models/User'); // Import the User model
 
 const app = express();
 
-// CORS configuration for production
+// CORS configuration for production - Fixed for Firebase/Vercel deployment
 const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (mobile apps, curl, etc.)
-        if (!origin) return callback(null, true);
-        
-        // List of allowed origins
-        const allowedOrigins = [
-            'http://localhost:5173',
-            'http://localhost:3000',
-            'https://nazakat-nail-store.web.app',
-            'https://nazakat-nail-store.firebaseapp.com',
-            process.env.FRONTEND_URL,
-            process.env.PRODUCTION_URL
-        ];
-        
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+    origin: [
+        'https://nazakat-nail-store.web.app',
+        'https://nazakat-nail-store.firebaseapp.com',
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://localhost:5173'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true,
+    optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+
+// Add explicit OPTIONS handler for preflight requests
+app.options('*', cors(corsOptions));
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies (for PayFast)
 
@@ -57,11 +49,23 @@ const upload = multer({
 // app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB
-connectDB();
+connectDB().catch(err => {
+    console.error('Database connection failed:', err);
+});
+
+// Add request logging middleware
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path} - ${new Date().toISOString()}`);
+    next();
+});
 
 //test api
 app.get('/', (req, res) => {
-    res.send('API is running...'); // Simple message to indicate the server is running
+    res.json({ 
+        message: 'Nazakat API is running...', 
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV 
+    });
 });
 
 // Health check endpoint
