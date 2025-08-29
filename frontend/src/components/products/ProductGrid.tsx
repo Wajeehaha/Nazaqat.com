@@ -15,6 +15,10 @@ interface Product {
   image: string;
   images?: string[]; // Optional array of images
   price: string | number;
+  pricing?: {
+    pieces12: number;
+    pieces24: number;
+  };
   rating?: number;
   description?: string; // Optional description
 }
@@ -47,6 +51,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, category, onProduct
                       name={product.name}
                       image={product.image || (product.images && product.images[0]) || ""}
                       price={product.price}
+                      pricing={product.pricing}
                       rating={product.rating}
                       category={category}
                       description={product.description}
@@ -78,6 +83,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ products, category, onProduct
             name={product.name}
             image={product.image}
             price={product.price}
+            pricing={product.pricing}
             rating={product.rating}
             category={category}
             description={product.description}

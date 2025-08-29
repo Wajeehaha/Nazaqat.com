@@ -8,6 +8,7 @@ import { fetchTrendingProducts, fetchNailById } from "@/assets/data";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReviewSummary from "@/components/reviews/ReviewSummary";
 import ReviewList from "@/components/reviews/ReviewList";
@@ -33,6 +34,7 @@ const ProductDetailPage = () => {
     }
   }, [product]);
   const [quantity, setQuantity] = useState(1);
+  const [selectedPieces, setSelectedPieces] = useState("pieces12"); // Default to 12 pieces
   const [activeImage, setActiveImage] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -56,6 +58,24 @@ const ProductDetailPage = () => {
   const currentUser = { id: userId, firstName: 'Customer', lastName: '' };
   const userOrders = [userId]; // Use userId as orderId for now - replace with actual orders
 
+  // Helper function to get current price based on selected pieces
+  const getCurrentPrice = () => {
+    if (!product) return 0;
+    
+    // Check if product has dual pricing structure
+    if (product.pricing && product.pricing[selectedPieces]) {
+      return product.pricing[selectedPieces];
+    }
+    
+    // Fallback logic for products without dual pricing
+    if (selectedPieces === "pieces24") {
+      return 1199; // Default 24 pieces price
+    }
+    
+    // Default fallback to 12 pieces price or product.price
+    return product.price || 799;
+  };
+
   useEffect(() => {
     const fetchProductAndRelated = async () => {
       try {
@@ -64,6 +84,7 @@ const ProductDetailPage = () => {
         // Reset states when navigating to new product
         setActiveImage(0);
         setQuantity(1);
+        setSelectedPieces("pieces12"); // Reset to default piece selection
         setProduct(null);
         setReviews([]);
         setReviewStats(null);
@@ -116,16 +137,17 @@ const ProductDetailPage = () => {
   const handleAddToCart = async () => {
     try {
       setIsLoading(true);
-      console.log("Adding to cart with quantity:", quantity);
+      console.log("Adding to cart with quantity:", quantity, "pieces:", selectedPieces);
       
       // Create product object for cart context
       const productForCart = {
         id: product._id,
-        name: product.name,
+        name: `${product.name} (${selectedPieces === 'pieces12' ? '12 Pieces' : '24 Pieces'})`,
         image: product.image,
-        price: product.price.toString(),
+        price: getCurrentPrice().toString(),
         rating: product.rating,
         description: product.description,
+        pieces: selectedPieces, // Add piece information
       };
 
       // Use cart context to add to cart with quantity
@@ -186,14 +208,48 @@ const ProductDetailPage = () => {
     try {
       setReviewsLoading(true);
       const response = await fetch(`/api/reviews/product/${id}`);
+      
+      // Check if response is actually JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        console.warn('Reviews API returned non-JSON response, using fallback data');
+        // Set fallback empty review data
+        setReviews([]);
+        setReviewStats({
+          averageRating: 0,
+          totalReviews: 0,
+          ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        });
+        return;
+      }
+      
       const data = await response.json();
       
       if (response.ok) {
-        setReviews(data.reviews);
-        setReviewStats(data.stats);
+        setReviews(data.reviews || []);
+        setReviewStats(data.stats || {
+          averageRating: 0,
+          totalReviews: 0,
+          ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        });
+      } else {
+        // API returned error, use fallback
+        setReviews([]);
+        setReviewStats({
+          averageRating: 0,
+          totalReviews: 0,
+          ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+        });
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);
+      // Set fallback data on error
+      setReviews([]);
+      setReviewStats({
+        averageRating: 0,
+        totalReviews: 0,
+        ratingDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+      });
     } finally {
       setReviewsLoading(false);
     }
@@ -379,8 +435,8 @@ const ProductDetailPage = () => {
                     </div>
 
                     <div className="flex items-baseline gap-2 mb-4 sm:mb-6">
-                      <span className="text-3xl sm:text-4xl font-bold text-primary">Rs. {product.price}</span>
-                      <span className="text-sm text-gray-500 line-through opacity-0">Rs. {(Number(product.price) * 1.2).toFixed(2)}</span>
+                      <span className="text-3xl sm:text-4xl font-bold text-primary">Rs. {getCurrentPrice()}</span>
+                      <span className="text-sm text-gray-500 line-through opacity-0">Rs. {(Number(getCurrentPrice()) * 1.2).toFixed(2)}</span>
                     </div>
                   </div>
 
@@ -394,6 +450,22 @@ const ProductDetailPage = () => {
                   </div>
 
                   <Separator />
+
+                  {/* Piece Selection */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <label htmlFor="pieces" className="block text-sm font-medium text-gray-700 mb-3">
+                      Select Pieces
+                    </label>
+                    <Select value={selectedPieces} onValueChange={setSelectedPieces}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select number of pieces" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pieces12">12 Pieces - Rs. {product?.pricing?.pieces12 || 799}</SelectItem>
+                        <SelectItem value="pieces24">24 Pieces - Rs. {product?.pricing?.pieces24 || 1199}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   {/* Quantity Selector */}
                   <div className="bg-gray-50 p-4 rounded-lg mobile-quantity-selector">
@@ -442,8 +514,8 @@ const ProductDetailPage = () => {
                       ) : (
                         <div className="flex items-center justify-center space-x-2">
                           <ShoppingCart className="h-5 w-5 sm:h-4 sm:w-4" />
-                          <span className="hidden sm:inline">Add to Cart • Rs. {(Number(product.price) * quantity).toFixed(2)}</span>
-                          <span className="sm:hidden">Add Rs. {(Number(product.price) * quantity).toFixed(2)} to Cart</span>
+                          <span className="hidden sm:inline">Add to Cart • Rs. {(Number(getCurrentPrice()) * quantity).toFixed(2)}</span>
+                          <span className="sm:hidden">Add Rs. {(Number(getCurrentPrice()) * quantity).toFixed(2)} to Cart</span>
                         </div>
                       )}
                     </Button>

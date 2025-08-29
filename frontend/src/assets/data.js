@@ -195,8 +195,21 @@ export const addToCart = async (userId, product) => {
     throw new Error('User authentication required. Please log in.');
   }
   
+  // Transform frontend product object to backend format
+  const backendProduct = {
+    productId: product.id,
+    name: product.name,
+    image: product.image,
+    pieceOption: product.pieces === 'pieces24' ? '24' : '12', // Convert pieces12/pieces24 to 12/24
+    rating: product.rating,
+    description: product.description,
+    quantity: product.quantity || 1
+  };
+  
+  console.log("Sending to backend:", backendProduct);
+  
   try {
-    const response = await axios.post(`${API_BASE_URL}/cart/${userId}`, product);
+    const response = await axios.post(`${API_BASE_URL}/cart/${userId}`, backendProduct);
     console.log('addToCart API response:', response.data);
     return response.data; // Returns the updated cart
   } catch (error) {

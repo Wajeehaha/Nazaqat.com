@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Rating from '@/components/ui/rating';
 import { ShoppingCart } from 'lucide-react';
 import { Card, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
@@ -10,6 +11,10 @@ interface ProductCardProps {
   name: string;
   image: string;
   price: string | number;
+  pricing?: {
+    pieces12: number;
+    pieces24: number;
+  };
   rating?: number;
   category: string;
   description?: string;
@@ -21,12 +26,29 @@ const ProductCard: React.FC<ProductCardProps> = ({
   name,
   image,
   price,
+  pricing,
   rating,
   category,
   description,
   onClick, // Accept the onClick prop
 }) => {
   const { addToCart } = useCart(); // Use the addToCart function from CartContext
+  const [selectedPieces, setSelectedPieces] = useState("pieces12"); // Default to 12 pieces
+
+  // Helper function to get current price based on selected pieces
+  const getCurrentPrice = () => {
+    if (pricing && pricing[selectedPieces]) {
+      return pricing[selectedPieces];
+    }
+    
+    // Fallback logic for products without dual pricing
+    if (selectedPieces === "pieces24") {
+      return 1199; // Default 24 pieces price
+    }
+    
+    // Default to 12 pieces price or original price
+    return Number(price) || 799;
+  };
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent default behavior
@@ -44,11 +66,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       // Call the addToCart function from CartContext
       await addToCart({
         id, // Use id here
-        name,
+        name: `${name} (${selectedPieces === 'pieces12' ? '12 Pieces' : '24 Pieces'})`,
         image,
-        price: price.toString(),
+        price: getCurrentPrice().toString(),
         rating: rating || 0,
         description: description || '',
+        pieces: selectedPieces, // Add piece information
       });
 
       console.log('Product added to cart successfully');
@@ -73,8 +96,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <CardContent className="p-3 sm:p-4 flex-grow">
         <CardTitle className="font-medium text-sm sm:text-base lg:text-lg mb-1 sm:mb-2 line-clamp-2">{name}</CardTitle>
         <p className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2 line-clamp-2">{description}</p> {/* Display the description */}
+        
+        {/* Piece Selection for dual pricing */}
+        {(pricing || true) && (
+          <div className="mb-2">
+            <Select value={selectedPieces} onValueChange={setSelectedPieces}>
+              <SelectTrigger className="w-full h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pieces12">12 Pieces - Rs. {pricing?.pieces12 || 799}</SelectItem>
+                <SelectItem value="pieces24">24 Pieces - Rs. {pricing?.pieces24 || 1199}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+        
         <div className="flex justify-between items-center mb-1 sm:mb-2">
-          <p className="font-semibold text-black text-sm sm:text-base">Rs. {price}</p>
+          <p className="font-semibold text-black text-sm sm:text-base">Rs. {getCurrentPrice()}</p>
           {rating && rating > 0 && <Rating value={rating} className="text-xs sm:text-sm" />}
         </div>
       </CardContent>

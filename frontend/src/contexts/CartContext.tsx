@@ -9,6 +9,7 @@ type Product = {
   price: string;
   rating?: number;
   description?: string;
+  pieces?: string; // Add pieces property for dual pricing
 };
 
 type CartItem = Product & {
@@ -183,12 +184,13 @@ const addToCart = async (product: Product, quantity: number = 1) => {
   try {
     console.log("Calling addToCartAPI with userId:", userId);
     const updatedCart = await addToCartAPI(userId, {
-      productId: product.id,
+      id: product.id, // Keep as 'id' for frontend, will be transformed in data.js
       name: product.name,
       image: product.image,
       price: product.price,
       rating: product.rating,
       description: product.description,
+      pieces: product.pieces, // Pass the pieces information
       quantity: quantity, // Use the passed quantity
     });
     console.log("addToCartAPI completed successfully, updating state");
