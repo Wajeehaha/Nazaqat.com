@@ -42,7 +42,7 @@ const dummyNails=[// Collection 1 - Product 1
             "/uploads/Narmeen-noor-1.jpg",
             "/uploads/Narmeen-noor-2.jpg",
             "/uploads/Narmeen-noor-3.jpg",
-            "/uploads/narmeen-noor-4.jpg"
+            "/uploads/Narmeen-noor-4.jpg"
         ],
         // New pricing structure with different piece options
         pricing: {
