@@ -7,7 +7,9 @@ const cartSchema = new mongoose.Schema({
             productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
             name: { type: String, required: true },
             image: { type: String, required: true },
-            price: { type: Number, required: true },
+            // Updated pricing structure
+            pieceOption: { type: String, enum: ['12', '24'], required: true }, // Which piece option user selected
+            price: { type: Number, required: true }, // Price based on piece selection
             rating: { type: Number, required: true },
             description: { type: String, required: true },
             quantity: { type: Number, default: 1 },

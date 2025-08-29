@@ -8,6 +8,8 @@ const orderSchema = new mongoose.Schema({
             productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
             name: { type: String, required: true },
             image: { type: String, required: true },
+            // Updated pricing structure
+            pieceOption: { type: String, enum: ['12', '24'], required: true }, // Which piece option user selected
             price: { type: Number, required: true },
             quantity: { type: Number, required: true },
             totalPrice: { type: Number, required: true },

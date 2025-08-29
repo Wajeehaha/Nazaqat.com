@@ -181,11 +181,12 @@ app.get('/api/health', (req, res) => {
 // POST API: Add a new nail product
 app.post('/api/nails', upload.single('image'), async (req, res) => {
     try {
-        const { name, price, rating, description, stock, collection, category, images } = req.body;
+        const { name, rating, description, collection, category, images, 
+                pieces12Stock, pieces24Stock, pieces12Price, pieces24Price } = req.body;
         const image = req.file ? `/uploads/${Date.now()}-${req.file.originalname}` : null;
         
-        if (!name || !price || !collection) {
-            return res.status(400).json({ message: 'Name, price, and collection are required' });
+        if (!name || !collection) {
+            return res.status(400).json({ message: 'Name and collection are required' });
         }
         
         let parsedImages = [];
@@ -199,8 +200,23 @@ app.post('/api/nails', upload.single('image'), async (req, res) => {
         }
         
         const nail = new Nail({ 
-            name, price, rating, description, stock, collection, category, image,
-            images: parsedImages.length > 0 ? parsedImages : (image ? [image] : [])
+            name, 
+            rating: rating || 0, 
+            description, 
+            collection, 
+            category, 
+            image,
+            images: parsedImages.length > 0 ? parsedImages : (image ? [image] : []),
+            pricing: {
+                pieces12: pieces12Price || 799,
+                pieces24: pieces24Price || 1199
+            },
+            stock: {
+                pieces12: pieces12Stock || 0,
+                pieces24: pieces24Stock || 0
+            },
+            // Keep backward compatibility
+            price: pieces12Price || 799
         });
         await nail.save();
         res.status(201).json(nail);

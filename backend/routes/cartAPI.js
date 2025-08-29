@@ -70,7 +70,7 @@ router.get('/:userId', async (req, res) => {
 router.post('/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
-        const { productId, name, image, price, rating, description, quantity } = req.body;
+        const { productId, name, image, pieceOption, rating, description, quantity } = req.body;
 
         // Validate userId
         if (!userId || userId === 'null' || userId === 'undefined') {
@@ -78,7 +78,12 @@ router.post('/:userId', async (req, res) => {
             return res.status(401).json({ message: 'User authentication required' });
         }
 
-        console.log('Add to cart request:', { userId, productId, name, price, quantity }); // Debug log
+        // Validate piece option
+        if (!pieceOption || !['12', '24'].includes(pieceOption)) {
+            return res.status(400).json({ message: 'Invalid piece option. Must be "12" or "24"' });
+        }
+
+        console.log('Add to cart request:', { userId, productId, name, pieceOption, quantity }); // Debug log
 
         // Fetch the product to check stock
         const product = await Nail.findById(productId);
@@ -88,10 +93,15 @@ router.post('/:userId', async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        console.log('Product found:', product.name, 'Stock:', product.stock); // Debug log
+        // Get price based on piece option
+        const price = pieceOption === '12' ? product.pricing.pieces12 : product.pricing.pieces24;
+        const stockField = pieceOption === '12' ? 'pieces12' : 'pieces24';
+        const availableStock = product.stock[stockField] || 0;
 
-        if (product.stock < 1) {
-            return res.status(400).json({ message: 'Product is out of stock' });
+        console.log('Product found:', product.name, 'Piece option:', pieceOption, 'Price:', price, 'Stock:', availableStock); // Debug log
+
+        if (availableStock < 1) {
+            return res.status(400).json({ message: `${pieceOption}-piece option is out of stock` });
         }
 
         let cart = await Cart.findOne({ userId });
@@ -102,25 +112,30 @@ router.post('/:userId', async (req, res) => {
             console.log('Found existing cart with', cart.items.length, 'items'); // Debug log
         }
 
-        const existingItem = cart.items.find((item) => item.productId.toString() === productId);
+        // Check if the same product with same piece option exists
+        const existingItem = cart.items.find((item) => 
+            item.productId.toString() === productId && item.pieceOption === pieceOption
+        );
+        
         if (existingItem) {
             console.log('Item already exists in cart, updating quantity'); // Debug log
-            if (existingItem.quantity + (quantity || 1) > product.stock) {
+            if (existingItem.quantity + (quantity || 1) > availableStock) {
                 return res.status(400).json({ message: 'Not enough stock available' });
             }
             existingItem.quantity += (quantity || 1);
-            existingItem.totalPrice = existingItem.quantity * parseFloat(existingItem.price);
+            existingItem.totalPrice = existingItem.quantity * price;
         } else {
             console.log('Adding new item to cart'); // Debug log
             cart.items.push({
                 productId,
                 name,
                 image,
-                price: parseFloat(price), // Ensure price is number in database
+                pieceOption,
+                price: price,
                 rating,
                 description,
                 quantity: quantity || 1,
-                totalPrice: parseFloat(price) * (quantity || 1),
+                totalPrice: price * (quantity || 1),
             });
         }
 
@@ -175,8 +190,10 @@ router.post('/:userId', async (req, res) => {
 router.delete('/:userId/:productId', async (req, res) => {
     try {
         const { userId, productId } = req.params;
+        const { pieceOption } = req.query; // Get piece option from query params
+        
         console.log("=== REMOVE ITEM ENDPOINT HIT ===");
-        console.log("userId:", userId, "productId:", productId);
+        console.log("userId:", userId, "productId:", productId, "pieceOption:", pieceOption);
         console.log("Request URL:", req.url);
 
         const cart = await Cart.findOne({ userId });
@@ -184,7 +201,16 @@ router.delete('/:userId/:productId', async (req, res) => {
             return res.status(404).json({ message: 'Cart not found' });
         }
 
-        cart.items = cart.items.filter((item) => item.productId.toString() !== productId);
+        // Remove item with matching productId and pieceOption
+        if (pieceOption) {
+            cart.items = cart.items.filter((item) => 
+                !(item.productId.toString() === productId && item.pieceOption === pieceOption)
+            );
+        } else {
+            // If no piece option specified, remove all items with this productId
+            cart.items = cart.items.filter((item) => item.productId.toString() !== productId);
+        }
+        
         await cart.save();
 
         res.json(cart);
@@ -197,14 +223,19 @@ router.delete('/:userId/:productId', async (req, res) => {
 router.put('/:userId/:productId', async (req, res) => {
     try {
         const { userId, productId } = req.params;
-        const { mode, quantity } = req.body;
+        const { mode, quantity, pieceOption } = req.body;
 
         const cart = await Cart.findOne({ userId });
         if (!cart) {
             return res.status(404).json({ message: 'Cart not found' });
         }
 
-        const item = cart.items.find((item) => item.productId.toString() === productId);
+        // Find item with matching productId and pieceOption
+        const item = cart.items.find((item) => 
+            item.productId.toString() === productId && 
+            item.pieceOption === pieceOption
+        );
+        
         if (!item) {
             return res.status(404).json({ message: 'Product not found in cart' });
         }
@@ -216,6 +247,10 @@ router.put('/:userId/:productId', async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
+        // Get stock for the specific piece option
+        const stockField = pieceOption === '12' ? 'pieces12' : 'pieces24';
+        const availableStock = product.stock[stockField] || 0;
+
         // Handle different update modes
         if (mode === 'set' && quantity !== undefined) {
             // Direct quantity setting
@@ -223,12 +258,12 @@ router.put('/:userId/:productId', async (req, res) => {
             if (newQuantity <= 0) {
                 return res.status(400).json({ message: 'Quantity must be greater than 0' });
             }
-            if (newQuantity > product.stock) {
+            if (newQuantity > availableStock) {
                 return res.status(400).json({ message: 'Not enough stock available' });
             }
             item.quantity = newQuantity;
         } else if (mode === 'increment') {
-            if (item.quantity + 1 > product.stock) {
+            if (item.quantity + 1 > availableStock) {
                 return res.status(400).json({ message: 'Not enough stock available' });
             }
             item.quantity += 1;
@@ -244,7 +279,7 @@ router.put('/:userId/:productId', async (req, res) => {
 
         item.totalPrice = item.quantity * item.price;
         await cart.save();
-        console.log(`Cart updated: ${item.name} quantity set to ${item.quantity}`);
+        console.log(`Cart updated: ${item.name} (${item.pieceOption} pieces) quantity set to ${item.quantity}`);
         res.json(cart);
     } catch (error) {
         console.error('Error updating cart quantity:', error);

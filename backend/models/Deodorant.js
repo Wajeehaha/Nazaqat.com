@@ -4,10 +4,20 @@ const mongoose = require('mongoose');
 const deodorantSchema = new mongoose.Schema({
     name: { type: String, required: true },
     image: { type: String, required: true },
-    price: { type: String, required: true },
-    rating: { type: Number, required: true },
     description: { type: String, required: true },
-    stock: { type: Number, required: true }, // Add stock field
+    rating: { type: Number, required: true },
+    // New pricing structure with different piece options
+    pricing: {
+        pieces12: { type: Number, default: 799 }, // 12 pieces for 799
+        pieces24: { type: Number, default: 1199 }  // 24 pieces for 1199
+    },
+    // Deprecated: Keep for backward compatibility
+    price: { type: String, default: '799' },
+    // Stock for both options
+    stock: {
+        pieces12: { type: Number, default: 0 },
+        pieces24: { type: Number, default: 0 }
+    },
 });
 
 // Create the model
