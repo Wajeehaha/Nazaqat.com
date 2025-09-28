@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
               </a>
               
               <a 
-                href="https://tiktok.com/@nazakat" 
+                href="https://www.tiktok.com/@shopnazaqat.co?_t=ZS-8z64ugL9KKY&_r=1" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="text-gray-300 hover:text-sage-300 transition-colors group"

@@ -384,11 +384,17 @@ app.post('/api/orders/:userId', async (req, res) => {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
-        const totalAmount = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+        const subtotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+        const shippingCost = subtotal >= 2000 ? 0 : 200;
+        const discount = 0; // No discount for direct orders
+        const totalAmount = subtotal + shippingCost;
 
         const order = new Order({
             userId,
             items: cart.items,
+            subtotal,
+            shippingCost,
+            discount,
             totalAmount,
         });
         await order.save();
@@ -403,17 +409,37 @@ app.post('/api/orders/:userId', async (req, res) => {
                 quantity: item.quantity
             })));
             
-            const { generateOrderConfirmationEmail } = require('../utils/emailTemplates');
+            const { generateOrderConfirmationEmail, generateOwnerOrderNotificationEmail } = require('../utils/emailTemplates');
             
             const subject = '🎉 Order Confirmation - Nazakat Nails';
-            const text = `Thank you for your order!\n\nOrder Details:\n${cart.items.map(item => `- ${item.name} x${item.quantity}: Rs. ${item.totalPrice}`).join('\n')}\n\nTotal: Rs. ${totalAmount}\n\nWe appreciate your business!`;
-            const html = generateOrderConfirmationEmail(user, order, cart.items, totalAmount);
+            const text = `Thank you for your order!\n\nOrder Details:\n${cart.items.map(item => `- ${item.name} x${item.quantity}: PKR ${item.totalPrice}`).join('\n')}\n\nSubtotal: PKR ${subtotal}\nShipping: ${shippingCost === 0 ? 'Free' : `PKR ${shippingCost}`}\nTotal: PKR ${totalAmount}\n\nWe appreciate your business!`;
+            const html = generateOrderConfirmationEmail(user, order, cart.items, subtotal, shippingCost, discount, totalAmount);
             
             try {
                 await sendMail(user.email, subject, text, html);
                 console.log(`Order confirmation email sent to ${user.email}`);
             } catch (mailErr) {
                 console.error('Error sending order confirmation email:', mailErr);
+            }
+
+            // Send owner notification email
+            try {
+                const ownerSubject = '🚨 New Order Received - Direct Placement';
+                const ownerText = `New order placed directly!\n\nOrder #${order._id}\nCustomer: ${user.name}\nEmail: ${user.email}\nSubtotal: PKR ${subtotal}\nShipping: ${shippingCost === 0 ? 'Free' : `PKR ${shippingCost}`}\nTotal Amount: PKR ${totalAmount}\n\nItems:\n${cart.items.map(item => `- ${item.name} x${item.quantity}: PKR ${item.totalPrice}`).join('\n')}\n\nPlease prepare order for packaging.`;
+                const ownerHtml = generateOwnerOrderNotificationEmail(order, { 
+                    firstName: user.name.split(' ')[0] || user.name, 
+                    lastName: user.name.split(' ').slice(1).join(' ') || '', 
+                    email: user.email, 
+                    phone: user.phone || 'Not provided', 
+                    address: user.address || 'Not provided',
+                    city: '',
+                    postalCode: ''
+                }, cart.items, subtotal, shippingCost, discount, totalAmount);
+                
+                await sendMail(process.env.OWNER_EMAIL, ownerSubject, ownerText, ownerHtml);
+                console.log('Owner notification email sent for direct order');
+            } catch (mailErr) {
+                console.error('Error sending owner notification email for direct order:', mailErr);
             }
         }
 
@@ -459,6 +485,11 @@ app.post('/api/submit-order', async (req, res) => {
 
         const totalPrice = product.price * quantity;
 
+        const subtotal = totalPrice;
+        const shippingCost = subtotal >= 2000 ? 0 : 200;
+        const discount = 0; // No discount for direct purchases
+        const finalTotalAmount = subtotal + shippingCost;
+
         const order = new Order({
             userId,
             items: [
@@ -471,9 +502,38 @@ app.post('/api/submit-order', async (req, res) => {
                     totalPrice,
                 },
             ],
-            totalAmount: totalPrice,
+            subtotal,
+            shippingCost,
+            discount,
+            totalAmount: finalTotalAmount,
         });
         await order.save();
+
+        // Send owner notification email for direct product purchase
+        try {
+            const user = await User.findById(userId);
+            const { generateOwnerOrderNotificationEmail } = require('../utils/emailTemplates');
+            const sendMail = require('../utils/sendMail');
+            
+            if (user) {
+                const ownerSubject = '🚨 New Direct Purchase - Single Item Order';
+                const ownerText = `New single item purchase!\n\nOrder #${order._id}\nCustomer: ${user.name}\nEmail: ${user.email}\nProduct: ${product.name}\nQuantity: ${quantity}\nSubtotal: PKR ${subtotal}\nShipping: ${shippingCost === 0 ? 'Free' : `PKR ${shippingCost}`}\nTotal Amount: PKR ${finalTotalAmount}\n\nPlease prepare item for packaging.`;
+                const ownerHtml = generateOwnerOrderNotificationEmail(order, { 
+                    firstName: user.name.split(' ')[0] || user.name, 
+                    lastName: user.name.split(' ').slice(1).join(' ') || '', 
+                    email: user.email, 
+                    phone: user.phone || 'Not provided', 
+                    address: user.address || 'Not provided',
+                    city: '',
+                    postalCode: ''
+                }, order.items, subtotal, shippingCost, discount, finalTotalAmount);
+                
+                await sendMail(process.env.OWNER_EMAIL, ownerSubject, ownerText, ownerHtml);
+                console.log('Owner notification email sent for direct purchase');
+            }
+        } catch (mailErr) {
+            console.error('Error sending owner notification email for direct purchase:', mailErr);
+        }
 
         res.status(201).json({ message: 'Order submitted successfully', order });
     } catch (error) {

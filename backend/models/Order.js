@@ -15,9 +15,10 @@ const orderSchema = new mongoose.Schema({
             totalPrice: { type: Number, required: true },
         },
     ],
-    subtotal: { type: Number, required: true }, // Subtotal before discount
+    subtotal: { type: Number, required: true }, // Subtotal before discount and shipping
+    shippingCost: { type: Number, default: 0 }, // Shipping cost
     discount: { type: Number, default: 0 }, // Discount amount
-    totalAmount: { type: Number, required: true }, // Total amount after discount
+    totalAmount: { type: Number, required: true }, // Total amount after discount and shipping
     status: { type: String, default: 'Pending' }, // Order status (e.g., Pending, Paid, Completed, Cancelled)
     paymentMethod: { 
         type: String, 

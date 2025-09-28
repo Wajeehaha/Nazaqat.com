@@ -5,7 +5,7 @@ const Cart = require('../models/Cart');
 const User = require('../models/User');
 const Coupon = require('../models/Coupon');
 const { createPaymentData, getPayFastUrl, verifyPayment } = require('../utils/payfast');
-const { generateOrderConfirmationEmail } = require('../utils/emailTemplates');
+const { generateOrderConfirmationEmail, generateOwnerOrderNotificationEmail } = require('../utils/emailTemplates');
 const sendMail = require('../utils/sendMail');
 
 // Create payment for order
@@ -32,6 +32,10 @@ router.post('/create', async (req, res) => {
 
         // Calculate subtotal
         const subtotal = cart.items.reduce((sum, item) => sum + item.totalPrice, 0);
+        
+        // Calculate shipping cost (same logic as frontend)
+        const shippingCost = subtotal >= 2000 ? 0 : 200;
+        
         let discount = 0;
         let couponUsed = null;
 
@@ -56,13 +60,14 @@ router.post('/create', async (req, res) => {
             }
         }
 
-        const totalAmount = subtotal - discount;
+        const totalAmount = subtotal + shippingCost - discount;
 
         // Create order
         const orderData = {
             userId,
             items: cart.items,
             subtotal,
+            shippingCost,
             discount,
             totalAmount,
             paymentMethod,
@@ -99,12 +104,24 @@ router.post('/create', async (req, res) => {
                 if (user && user.email) {
                     const subject = '📦 Order Confirmed - Cash on Delivery';
                     const text = `Your order has been confirmed!\n\nOrder #${order._id}\nPayment Method: Cash on Delivery\nTotal Amount: PKR ${totalAmount}\n\nWe'll deliver your order soon!`;
-                    const html = generateOrderConfirmationEmail(user, order, order.items, totalAmount);
+                    const html = generateOrderConfirmationEmail(user, order, order.items, order.subtotal, order.shippingCost, order.discount, order.totalAmount);
                     
                     await sendMail(user.email, subject, text, html);
                 }
             } catch (mailErr) {
                 console.error('Error sending COD confirmation email:', mailErr);
+            }
+
+            // Send owner notification email for COD
+            try {
+                const ownerSubject = '🚨 New COD Order Received - Action Required';
+                const ownerText = `New Cash on Delivery order received!\n\nOrder #${order._id}\nCustomer: ${customerInfo.firstName} ${customerInfo.lastName}\nTotal Amount: PKR ${totalAmount}\nPhone: ${customerInfo.phone}\nAddress: ${customerInfo.address}\n\nPlease prepare order for packaging and dispatch.`;
+                const ownerHtml = generateOwnerOrderNotificationEmail(order, customerInfo, order.items, order.subtotal, order.shippingCost, order.discount, order.totalAmount);
+                
+                await sendMail(process.env.OWNER_EMAIL, ownerSubject, ownerText, ownerHtml);
+                console.log('Owner notification email sent for COD order');
+            } catch (mailErr) {
+                console.error('Error sending owner notification email for COD:', mailErr);
             }
 
             return res.json({
@@ -192,13 +209,25 @@ router.post('/notify', async (req, res) => {
                 if (user && user.email) {
                     const subject = '🎉 Payment Confirmed - Nazakat Nails';
                     const text = `Thank you for your payment!\n\nOrder #${order._id}\nAmount: PKR ${order.totalAmount}\n\nYour order is being processed.`;
-                    const html = generateOrderConfirmationEmail(user, order, order.items, order.totalAmount);
+                    const html = generateOrderConfirmationEmail(user, order, order.items, order.subtotal, order.shippingCost, order.discount, order.totalAmount);
                     
                     await sendMail(user.email, subject, text, html);
                     console.log(`Payment confirmation email sent to ${user.email}`);
                 }
             } catch (mailErr) {
                 console.error('Error sending confirmation email:', mailErr);
+            }
+
+            // Send owner notification email for online payment
+            try {
+                const ownerSubject = '💳 New Paid Order Received - Ready to Ship';
+                const ownerText = `New online payment order received and paid!\n\nOrder #${order._id}\nCustomer: ${order.customerInfo.firstName} ${order.customerInfo.lastName}\nAmount Paid: PKR ${order.totalAmount}\nPhone: ${order.customerInfo.phone}\nAddress: ${order.customerInfo.address}\n\nOrder is paid and ready for packaging.`;
+                const ownerHtml = generateOwnerOrderNotificationEmail(order, order.customerInfo, order.items, order.subtotal, order.shippingCost, order.discount, order.totalAmount);
+                
+                await sendMail(process.env.OWNER_EMAIL, ownerSubject, ownerText, ownerHtml);
+                console.log('Owner notification email sent for paid order');
+            } catch (mailErr) {
+                console.error('Error sending owner notification email for paid order:', mailErr);
             }
 
         } else {
